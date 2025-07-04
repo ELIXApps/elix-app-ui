@@ -1,13 +1,15 @@
 <template>
   <v-app>
+     <v-app-bar title="ELIX"></v-app-bar>
+    <SideBar />
     <v-main>
-      <MainContent />
+      <v-container fluid>
+        <router-view />
+      </v-container>
     </v-main>
   </v-app>
 </template>
 
 <script lang="ts" setup>
-import MainContent from './components/MainContent.vue';
-
   //
 </script>
