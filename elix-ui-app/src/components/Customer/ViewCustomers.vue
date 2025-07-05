@@ -2,8 +2,8 @@
   <!-- Search Box -->
   <v-row>
     <v-col cols="4">
-      <v-text-field v-model="searchQuery" label="Search by name or company or mobile" prepend-inner-icon="mdi-magnify" clearable
-        class="mb-4" />
+      <v-text-field density="compact" v-model="searchQuery" label="Search by name or company or mobile"
+        prepend-inner-icon="mdi-magnify" clearable />
     </v-col>
   </v-row>
 

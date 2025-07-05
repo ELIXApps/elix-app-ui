@@ -1,6 +1,6 @@
 <template>
-    <v-container>
-        <h1 class="pb-3">{{ title }}</h1>
+    <v-container class="ms-3 me-3">
+        <h2 class="pb-5">{{ title }}</h2>
         <slot name="default" />
     </v-container>
 </template>
