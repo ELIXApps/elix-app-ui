@@ -29,13 +29,10 @@
 </template>
 <script setup lang="ts">
 import { DataSourceObjects } from '@/models/api'
+import { ICustomer } from '@/models/customer'
 import { apiGetAll } from '@/services/apiService'
-import { computed, onMounted, ref } from 'vue'
-
-onMounted(()=> {
-  apiGetAll(DataSourceObjects.customer)
-  .then(resp => console.log(resp));
-})
+import { HideLoaderKey, ShowLoaderKey } from '@/services/constants'
+import { inject, onMounted, ref } from 'vue'
 
 // v-dialog
 const dialog = ref(false)
@@ -45,44 +42,35 @@ const model = ref({
   progress: 0,
 })
 
-const selected = ref()
-
 const headers = [
-  { title: 'Customer Name', value: 'customerName' },
+  { title: 'First Name', value: 'firstName' },
+  { title: 'Last Name', value: 'lastName' },
   { title: 'Company Name', value: 'companyName' },
   { title: 'MobileNo', value: 'mobileNo' },
   { title: 'Actions', value: 'actions' },
 ]
 
-const items = ref([
-  { customerName: 'Surya', companyName: 'Elix', mobileNo: '9879387495' },
-  { customerName: 'Ananya', companyName: 'BlueSky Corp', mobileNo: '9123456780' },
-  { customerName: 'Rahul', companyName: 'Sunrise Ltd', mobileNo: '9876543210' },
-  { customerName: 'Priya', companyName: 'Nova Systems', mobileNo: '9001122334' },
-  { customerName: 'Arjun', companyName: 'TechWave', mobileNo: '9988776655' },
-  { customerName: 'Meera', companyName: 'GreenField', mobileNo: '9112233445' },
-  { customerName: 'Vikram', companyName: 'Zenith Solutions', mobileNo: '9870011223' },
-  { customerName: 'Divya', companyName: 'ApexSoft', mobileNo: '9123456789' },
-  { customerName: 'Karthik', companyName: 'Nimbus Tech', mobileNo: '9090909090' },
-  { customerName: 'Neha', companyName: 'BrightSpark', mobileNo: '9876549876' },
-  { customerName: 'Rohan', companyName: 'Vertex Inc', mobileNo: '9012345678' },
-])
-
-
-// Adjust progress bar color based on progress
-const color = computed(() => progress => {
-  if (progress === 100) return 'green-lighten-2'
-  if (progress >= 90) return 'green-lighten-4'
-  if (progress >= 70) return 'light-green-lighten-2'
-  if (progress >= 50) return 'light-green-lighten-4'
-  return 'blue-grey'
+const items = ref<{ firstName: string, lastName: string, companyName: string, mobileNo: string }[]>([]);
+const showLoader = inject<() => void>(ShowLoaderKey);
+const hideLoader = inject<() => void>(HideLoaderKey);
+onMounted(() => {
+  showLoader();
+  apiGetAll(DataSourceObjects.customer)
+    .then(resp => {
+      var customers: ICustomer[] = resp.value;
+      items.value = customers.map(x => ({
+        firstName: x.firstName,
+        lastName: x.lastName,
+        companyName: x.companyName,
+        mobileNo: x.contactInfo?.mobileNo
+      }))
+    })
+    .finally(() => hideLoader());
 })
-
 
 // Select & load data to be edited
 function edit(item) {
-  selected.value = item.id
   model.value = { name: item.name, progress: item.progress }
   dialog.value = true
 }
-</script>
+</script>;
