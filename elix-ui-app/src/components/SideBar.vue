@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ElixRoutes from "@/router/elixRoutes";
+import ElixRoutes from "@/router/ElixRoutes";
 import { useRouter } from "vue-router";
 var router = useRouter();
 
@@ -16,15 +16,15 @@ interface IMenu {
 
 const sideMenu: IMenu[] = [
     {
-        title: "Manage Customers",
+        title: "Customers",
         subMenus: [
             {
                 title: "Register",
-                path: ElixRoutes.MainContent.RegisterCustomer
+                path: ElixRoutes.Customer.Register
             },
             {
-                title: "View",
-                path: ElixRoutes.MainContent.ViewCustomers
+                title: "Manage",
+                path: ElixRoutes.Customer.Manage
             }
         ]
     },
