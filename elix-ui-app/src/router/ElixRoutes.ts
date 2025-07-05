@@ -1,7 +1,7 @@
 const ElixRoutes = {
     MainContent: {
-        RegisterCustomer: "/MainContent/RegisterCustomer",
-        ViewCustomers: "/MainContent/ViewCustomers"
+        RegisterCustomer: "/mainContent/RegisterCustomer",
+        ViewCustomers: "/mainContent/ViewCustomers"
     }
 }
 

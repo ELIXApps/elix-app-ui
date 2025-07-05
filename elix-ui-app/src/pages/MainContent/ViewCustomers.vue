@@ -1,9 +1,13 @@
 <template>
-  <h1>View Customer</h1>
-  <ViewCustomers />
+  <PageWrapper title="View Customers">
+    <template #default>
+      <ViewCustomers />
+    </template>
+  </PageWrapper>
 </template>
-<script setup>
-import ViewCustomers from '@/components/Customer/ViewCustomers.vue';
+<script setup lang="ts">
+import PageWrapper from '@/components/common/PageWrapper.vue';
+import ViewCustomers from '@/components/customer/ViewCustomers.vue';
 
 
 </script>

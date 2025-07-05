@@ -1,7 +1,12 @@
 <template>
-  <h1>Register Customer</h1>
-  <ManageCustomer />
+  <PageWrapper title="Register Customer">
+    <template #default>
+      <ManageCustomer />
+    </template>
+  </PageWrapper>
 </template>
-<script setup>
+<script setup lang="ts">
+import PageWrapper from '@/components/common/PageWrapper.vue';
+
 
 </script>

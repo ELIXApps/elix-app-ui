@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import ElixRoutes from "@/router/ElixRoutes";
+import ElixRoutes from "@/router/elixRoutes";
 import { useRouter } from "vue-router";
-
 var router = useRouter();
 
 const navigateTo = (route?: string) => {
@@ -55,7 +54,7 @@ const sideMenu: IMenu[] = [
             <v-expansion-panel v-for="menu in sideMenu" :key="menu.title">
                 <v-expansion-panel-title>{{ menu.title }}</v-expansion-panel-title>
                 <v-expansion-panel-text>
-                    <v-list>
+                    <v-list class="pa-0">
                         <v-list-item v-for="subMenu in menu.subMenus" :title="subMenu.title"
                             @click="navigateTo(subMenu.path)" />
                     </v-list>
