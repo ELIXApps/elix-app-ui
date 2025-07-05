@@ -7,7 +7,6 @@
 </template>
 <script setup lang="ts">
 import PageWrapper from '@/components/common/PageWrapper.vue';
-import ViewCustomers from '@/components/customer/ViewCustomers.vue';
 
 
 </script>
