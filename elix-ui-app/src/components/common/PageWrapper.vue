@@ -1,10 +1,8 @@
 <template>
-    <div>
-        <h1>{{ title }}</h1>
-        <v-container>
-            <slot name="default" />
-        </v-container>
-    </div>
+    <v-container>
+        <h1 class="pb-3">{{ title }}</h1>
+        <slot name="default" />
+    </v-container>
 </template>
 
 <script setup lang="ts">

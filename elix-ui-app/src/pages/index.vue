@@ -1,12 +1,11 @@
 <template>
-    <Loader />
-    <v-app-bar title="ELIX"></v-app-bar>
-    <SideBar />
-    <v-main>
-      <v-container fluid>
-        <router-view />
-      </v-container>
-    </v-main>
+  <Snackbar />
+  <Loader />
+  <v-app-bar title="ELIX"></v-app-bar>
+  <SideBar />
+  <v-main>
+      <router-view />
+  </v-main>
 </template>
 
 <script lang="ts" setup>
@@ -25,6 +24,6 @@ function hideLoader() {
 
 provide(LoadingKey, loading);
 provide(ShowLoaderKey, showLoader);
-provide(HideLoaderKey, hideLoader); 
+provide(HideLoaderKey, hideLoader);
 
 </script>

@@ -116,7 +116,7 @@
         </v-col>
     </v-row>
 
-    <v-row class="mt-3 pr-3" justify-lg="end">
+    <v-row class="mt-3 pr-3 pb-3" justify-lg="end">
         <v-btn size="large" @click="handleSubmit()">Submit</v-btn>
     </v-row>
 </template>
@@ -124,9 +124,13 @@
 <script setup lang="ts">
 import { inject, reactive } from 'vue';
 import { CustomerType, type ICustomer } from '@/models/customer';
-import { HideLoaderKey, ShowLoaderKey } from '@/services/constants';
+import { DefaultErrorMsg, HideLoaderKey, ShowLoaderKey } from '@/services/constants';
 import { apiCreate, apiUpdate } from '@/services/apiService';
 import { DataSourceObjects } from '@/models/api';
+import { useSnackbar } from '@/composables/useSnackbar';
+const { showSnackbar } = useSnackbar();
+
+var emit = defineEmits(['afterSubmit'])
 
 var { customer } = defineProps<{
     customer?: ICustomer
@@ -179,10 +183,20 @@ const hideLoader = inject<() => void>(HideLoaderKey);
 
 
 async function handleSubmit() {
-    showLoader();
-    var response = form.customerId ? await apiUpdate(DataSourceObjects.customer, form) : await apiCreate(DataSourceObjects.customer, form);
-    console.log(response);
-    hideLoader();
+    try {
+        showLoader();
+        var response = form.customerId ? await apiUpdate(DataSourceObjects.customer, form) : await apiCreate(DataSourceObjects.customer, form);
+        console.log(response);
+        if (response.message)
+            showSnackbar("Unexpected error occured while saving customer", 'danger');
+        else
+            showSnackbar("Customer saved successfully", 'success');
+    } catch (e) {
+        showSnackbar(DefaultErrorMsg, 'danger');
+    } finally {
+        hideLoader();
+        emit('afterSubmit')
+    }
 }
 
 
