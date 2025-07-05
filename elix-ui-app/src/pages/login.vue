@@ -8,8 +8,9 @@
                         <v-container>
                             <v-row>
                                 <v-col class="pa-4">
-                                    <label for="email">Email</label>
-                                    <input id="email" v-model="email" type="email" required autocomplete="username" />
+                                    <label for="userName">Username</label>
+                                    <input id="userName" v-model="userName" type="text" required
+                                        autocomplete="username" />
                                 </v-col>
                             </v-row>
                             <v-row>
@@ -38,36 +39,18 @@
 import { ref } from 'vue'
 
 const showDialog = ref(true) // 👈 show by default
+
+const handleLogin = () => {
+    // Simulate a login process
+    if (userName.value === 'admin' && password.value === 'password') {
+        // Redirect to the main content page
+        localStorage.setItem('access_token', 'valid1234');
+        window.location.href = '/'
+    } else {
+        error.value = 'Invalid username or password'
+    }
+}
 </script>
-
-<!-- <script>
-export default {
-    name: "Login",
-    data() {
-        return {
-            email: "",
-            password: "",
-            error: "",
-        };
-    },
-    methods: {
-        handleLogin() {
-            // Dummy login logic
-            if (this.email === "user@example.com" && this.password === "password") {
-                this.error = "";
-                // Redirect or emit event here
-                alert("Login successful!");
-            } else {
-                this.error = "Invalid email or password.";
-            }
-        },
-    },
-};
-</script> -->
-
-
-
-
 <style scoped>
 label {
     display: block;
@@ -75,7 +58,7 @@ label {
     font-weight: 500;
 }
 
-input[type="email"],
+input[type="text"],
 input[type="password"] {
     width: 100%;
     padding: 0.6rem;
