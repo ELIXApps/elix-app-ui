@@ -32,7 +32,6 @@ export const initializeAuth = async (globalStore, router) => {
 };
 
 const authFailed = (globalStore, router) => {
-  console.error("Authentication failed:", data);
   globalStore.authLoading(false);
   router.push("/login");
 };
