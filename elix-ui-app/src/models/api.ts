@@ -1,7 +1,13 @@
-interface ApiRequest {
+interface IApiRequest {
     type: ActionType,
     object: DataSourceObjects,
     data: any
+}
+
+interface IApiResponse {
+    status: string,
+    value: any,
+    message?: string
 }
 
 export enum ActionType {
@@ -16,5 +22,6 @@ export enum DataSourceObjects {
 }
 
 export type {
-    ApiRequest
+    IApiRequest,
+    IApiResponse
 }

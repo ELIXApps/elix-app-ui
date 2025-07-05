@@ -8,15 +8,12 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    CustomerRegistration: typeof import('./components/Customer/ManageCustomer.vue')['default']
-    HelloWorld: typeof import('./components/HelloWorld.vue')['default']
     Loader: typeof import('./components/common/Loader.vue')['default']
-    MainContent: typeof import('./components/MainContent.vue')['default']
-    ManageCustomer: typeof import('./components/Customer/ManageCustomer.vue')['default']
+    ManageCustomer: typeof import('./components/customer/ManageCustomer.vue')['default']
     PageWrapper: typeof import('./components/common/PageWrapper.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SideBar: typeof import('./components/SideBar.vue')['default']
-    ViewCustomers: typeof import('./components/Customer/ViewCustomers.vue')['default']
+    ViewCustomers: typeof import('./components/customer/ViewCustomers.vue')['default']
   }
 }

@@ -122,12 +122,11 @@
 </template>
 
 <script setup lang="ts">
-import { inject, onMounted, reactive, ref } from 'vue';
+import { inject, reactive } from 'vue';
 import { CustomerType, type ICustomer } from '@/models/customer';
-import { createCustomer, getCustomers } from '@/services/customerApiService';
-import { useRoute } from 'vue-router';
-import { ActionType } from '@/models/api';
 import { HideLoaderKey, ShowLoaderKey } from '@/services/constants';
+import { apiCreate } from '@/services/apiService';
+import { DataSourceObjects } from '@/models/api';
 
 const form = reactive<ICustomer>({
     customerType: CustomerType.Business,
@@ -159,22 +158,6 @@ const form = reactive<ICustomer>({
         pinCode: ''
     }
 });
-
-var route = useRoute();
-
-const customerId = ref("");
-
-onMounted(() => {
-    if (route.query.customerId) {
-        customerId.value = route.query.customerId as string;
-        getCustomers({ customerId: customerId.value }, ActionType.get)
-            .then()
-            .catch(e => {
-                console.log(e);
-            })
-    }
-});
-
 const salutations = ['Mr.', 'Ms.', 'Mrs.', 'Dr.']
 const countries = ['India', 'United States', 'United Kingdom']
 const states = ['Karnataka', 'Maharashtra', 'Tamil Nadu']
@@ -188,7 +171,8 @@ const hideLoader = inject<() => void>(HideLoaderKey);
 
 async function handleSubmit() {
     showLoader();
-    await createCustomer(form);
+    var response = await apiCreate(DataSourceObjects.customer, form);
+    console.log(response);
     hideLoader();
 }
 

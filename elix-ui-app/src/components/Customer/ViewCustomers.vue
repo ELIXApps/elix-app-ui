@@ -28,7 +28,14 @@
   </v-dialog>
 </template>
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { DataSourceObjects } from '@/models/api'
+import { apiGetAll } from '@/services/apiService'
+import { computed, onMounted, ref } from 'vue'
+
+onMounted(()=> {
+  apiGetAll(DataSourceObjects.customer)
+  .then(resp => console.log(resp));
+})
 
 // v-dialog
 const dialog = ref(false)
