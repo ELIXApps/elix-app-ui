@@ -125,8 +125,12 @@
 import { inject, reactive } from 'vue';
 import { CustomerType, type ICustomer } from '@/models/customer';
 import { HideLoaderKey, ShowLoaderKey } from '@/services/constants';
-import { apiCreate } from '@/services/apiService';
+import { apiCreate, apiUpdate } from '@/services/apiService';
 import { DataSourceObjects } from '@/models/api';
+
+var { customer } = defineProps<{
+    customer?: ICustomer
+}>();
 
 const form = reactive<ICustomer>({
     customerType: CustomerType.Business,
@@ -158,6 +162,11 @@ const form = reactive<ICustomer>({
         pinCode: ''
     }
 });
+
+if (customer)
+    Object.assign(form, customer);
+
+
 const salutations = ['Mr.', 'Ms.', 'Mrs.', 'Dr.']
 const countries = ['India', 'United States', 'United Kingdom']
 const states = ['Karnataka', 'Maharashtra', 'Tamil Nadu']
@@ -171,7 +180,7 @@ const hideLoader = inject<() => void>(HideLoaderKey);
 
 async function handleSubmit() {
     showLoader();
-    var response = await apiCreate(DataSourceObjects.customer, form);
+    var response = form.customerId ? await apiUpdate(DataSourceObjects.customer, form) : await apiCreate(DataSourceObjects.customer, form);
     console.log(response);
     hideLoader();
 }
