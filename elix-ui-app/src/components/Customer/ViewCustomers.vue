@@ -1,5 +1,14 @@
 <template>
-  <v-data-table :headers="headers" :items="items">
+  <!-- Search Box -->
+  <v-row>
+    <v-col cols="4">
+      <v-text-field v-model="searchQuery" label="Search by name or company or mobile" prepend-inner-icon="mdi-magnify" clearable
+        class="mb-4" />
+    </v-col>
+  </v-row>
+
+  <!-- Data Table -->
+  <v-data-table :headers="headers" :items="filteredItems" class="elevation-1">
     <template v-slot:item.actions="{ item }">
       <v-btn variant="text" icon @click="edit(item)">
         <v-icon>mdi-pencil</v-icon>
@@ -7,10 +16,11 @@
     </template>
   </v-data-table>
 
-  <v-dialog v-model="dialog" max-width="1000">
-    <v-card>
+  <!-- Dialog with ManageCustomer -->
+  <v-dialog v-model="dialog" transition="dialog-bottom-transition" max-width="60%">
+    <v-card prepend-icon="mdi-account" title="Customer Profile" rounded>
       <v-card-item>
-        <ManageCustomer v-if="selectedCustomer" :customer="selectedCustomer" />
+        <ManageCustomer v-if="selectedCustomer" :customer="selectedCustomer" @after-submit="dialog = false" />
       </v-card-item>
     </v-card>
   </v-dialog>
@@ -21,31 +31,37 @@ import { DataSourceObjects } from '@/models/api'
 import { ICustomer } from '@/models/customer'
 import { apiGetAll } from '@/services/apiService'
 import { HideLoaderKey, ShowLoaderKey } from '@/services/constants'
-import { inject, onMounted, ref } from 'vue'
+import { inject, onMounted, ref, computed } from 'vue'
 
 // v-dialog
 const dialog = ref(false)
 
+// Search input
+const searchQuery = ref('')
+
+// Table headers
 const headers = [
-  { title: 'First Name', value: 'firstName' },
-  { title: 'Last Name', value: 'lastName' },
-  { title: 'Company Name', value: 'companyName' },
-  { title: 'Mobile Number', value: 'mobileNo' },
-  { title: 'Actions', value: 'actions' },
+  { title: 'First Name', value: 'firstName', sortable: true },
+  { title: 'Last Name', value: 'lastName', sortable: true },
+  { title: 'Company Name', value: 'companyName', sortable: true },
+  { title: 'Mobile Number', value: 'mobileNo', sortable: true },
+  { title: 'Actions', value: 'actions', sortable: false },
 ]
 
-// Table items
+// All customers from API
+const customers = ref<ICustomer[]>([])
+
+// Table items for display
 const items = ref<
   { firstName: string; lastName: string; companyName: string; mobileNo: string; customerId: string }[]
 >([])
 
-const customers = ref<ICustomer[]>([])
 const selectedCustomer = ref<ICustomer | null>(null)
 
 const showLoader = inject<() => void>(ShowLoaderKey)
 const hideLoader = inject<() => void>(HideLoaderKey)
 
-// Load customers on mount
+// Load data on mount
 onMounted(() => {
   showLoader?.()
   apiGetAll(DataSourceObjects.customer)
@@ -62,7 +78,21 @@ onMounted(() => {
     .finally(() => hideLoader?.())
 })
 
-// Select & load data to be edited
+// Computed: filtered items by search query
+const filteredItems = computed(() => {
+  const query = searchQuery.value.trim().toLowerCase()
+  if (!query) return items.value
+
+  return items.value.filter(
+    i =>
+      i.firstName.toLowerCase().includes(query) ||
+      i.lastName.toLowerCase().includes(query) ||
+      i.companyName.toLowerCase().includes(query) ||
+      i.mobileNo.toLowerCase().includes(query)
+  )
+})
+
+// Edit handler
 function edit(item: { customerId: string }) {
   const customer = customers.value.find(c => c.customerId === item.customerId)
   if (customer) {
