@@ -6,44 +6,17 @@
           <v-card-title class="text-h5 mb-4 justify-center">Login</v-card-title>
 
           <v-form @submit.prevent="handleLogin" ref="formRef">
-            <v-text-field
-              v-model="username"
-              label="Username"
-              prepend-inner-icon="mdi-account"
-              :error-messages="usernameError"
-              density="comfortable"
-              required
-              class="pb-2"
-            />
+            <v-text-field v-model="username" label="Username" prepend-inner-icon="mdi-account"
+              :error-messages="usernameError" density="comfortable" required class="pb-2" />
 
-            <v-text-field
-              v-model="password"
-              label="Password"
-              type="password"
-              prepend-inner-icon="mdi-lock"
-              :error-messages="passwordError"
-              density="comfortable"
-              required              
-              class="pb-2"
-            />
+            <v-text-field v-model="password" label="Password" type="password" prepend-inner-icon="mdi-lock"
+              :error-messages="passwordError" density="comfortable" required class="pb-2" />
 
-            <v-alert
-              v-if="errorMessage"
-              type="error"
-              class="mb-3"
-              dense
-              border="start"
-            >
+            <v-alert v-if="errorMessage" type="error" class="mb-3" dense border="start">
               {{ errorMessage }}
             </v-alert>
 
-            <v-btn
-              :loading="loading"
-              type="submit"
-              color="primary"
-              block
-              size="large"
-            >
+            <v-btn :loading="loading" type="submit" color="primary" block size="large">
               Login
             </v-btn>
           </v-form>
