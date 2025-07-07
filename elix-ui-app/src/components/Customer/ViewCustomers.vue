@@ -27,10 +27,10 @@
 </template>
 
 <script setup lang="ts">
+import { useLoader } from '@/composables/useLoader'
 import { DataSourceObjects } from '@/models/api'
 import { ICustomer } from '@/models/customer'
 import { apiGetAll } from '@/services/apiService'
-import { HideLoaderKey, ShowLoaderKey } from '@/services/constants'
 import { inject, onMounted, ref, computed } from 'vue'
 
 // v-dialog
@@ -58,12 +58,11 @@ const items = ref<
 
 const selectedCustomer = ref<ICustomer | null>(null)
 
-const showLoader = inject<() => void>(ShowLoaderKey)
-const hideLoader = inject<() => void>(HideLoaderKey)
+const { showLoader, hideLoader } = useLoader();
 
 // Load data on mount
 onMounted(() => {
-  showLoader?.()
+  showLoader()
   apiGetAll(DataSourceObjects.customer)
     .then(resp => {
       customers.value = resp.value
@@ -75,7 +74,7 @@ onMounted(() => {
         customerId: x.customerId,
       }))
     })
-    .finally(() => hideLoader?.())
+    .finally(() => hideLoader())
 })
 
 // Computed: filtered items by search query

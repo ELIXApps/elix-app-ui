@@ -1,89 +1,114 @@
 <template>
-    <v-app>
-        <v-main>
-            <v-dialog v-model="showDialog" persistent max-width="500">
-                <v-card>
-                    <v-card-title class="text-h4">Login</v-card-title>
-                    <form @submit.prevent="handleLogin">
-                        <v-container>
-                            <v-row>
-                                <v-col class="pa-4">
-                                    <label for="userName">Username</label>
-                                    <input id="userName" v-model="userName" type="text" required
-                                        autocomplete="username" />
-                                </v-col>
-                            </v-row>
-                            <v-row>
-                                <v-col class="pa-4">
-                                    <label for="password">Password</label>
-                                    <input id="password" v-model="password" type="password" required
-                                        autocomplete="current-password" />
-                                </v-col>
-                            </v-row>
-                            <v-row>
-                                <v-col class="pa-4">
-                                    <button type="submit">Login</button>
-                                </v-col>
-                            </v-row>
-                        </v-container>
-                        <p v-if="error" class="error">{{ error }}</p>
+  <v-container class="fill-height" fluid>
+    <v-row align="center" justify="center">
+      <v-col cols="12" sm="8" md="4">
+        <v-card class="pa-6" elevation="10">
+          <v-card-title class="text-h5 mb-4 justify-center">Login</v-card-title>
 
-                    </form>
-                </v-card>
-            </v-dialog>
-        </v-main>
-    </v-app>
+          <v-form @submit.prevent="handleLogin" ref="formRef">
+            <v-text-field
+              v-model="username"
+              label="Username"
+              prepend-inner-icon="mdi-account"
+              :error-messages="usernameError"
+              density="comfortable"
+              required
+              class="pb-2"
+            />
+
+            <v-text-field
+              v-model="password"
+              label="Password"
+              type="password"
+              prepend-inner-icon="mdi-lock"
+              :error-messages="passwordError"
+              density="comfortable"
+              required              
+              class="pb-2"
+            />
+
+            <v-alert
+              v-if="errorMessage"
+              type="error"
+              class="mb-3"
+              dense
+              border="start"
+            >
+              {{ errorMessage }}
+            </v-alert>
+
+            <v-btn
+              :loading="loading"
+              type="submit"
+              color="primary"
+              block
+              size="large"
+            >
+              Login
+            </v-btn>
+          </v-form>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import { AccessTokenKey } from '@/services/constants'
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 
-const showDialog = ref(true) // 👈 show by default
+const router = useRouter();
 
-const handleLogin = () => {
-    // Simulate a login process
-    if (userName.value === 'admin' && password.value === 'password') {
-        // Redirect to the main content page
-        localStorage.setItem('access_token', 'valid1234');
-        window.location.href = '/'
-    } else {
-        error.value = 'Invalid username or password'
-    }
+// State
+const username = ref('');
+const password = ref('');
+const errorMessage = ref('');
+const usernameError = ref('');
+const passwordError = ref('');
+const loading = ref(false);
+
+// Simulated API call
+function fakeLoginApi(username: string, password: string): Promise<{ token: string }> {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (username === 'admin' && password === 'password') {
+        resolve({ token: 'valid1234' })
+      } else {
+        reject(new Error('Invalid credentials'))
+      }
+    }, 1500)
+  })
+}
+
+async function handleLogin() {
+  errorMessage.value = ''
+  usernameError.value = ''
+  passwordError.value = ''
+
+  if (!username.value) {
+    usernameError.value = 'Username is required'
+  }
+  if (!password.value) {
+    passwordError.value = 'Password is required'
+  }
+  if (usernameError.value || passwordError.value) {
+    return
+  }
+
+  loading.value = true
+  try {
+    const response = await fakeLoginApi(username.value, password.value)
+
+    // Save token securely (example using localStorage)
+    localStorage.setItem(AccessTokenKey, response.token)
+
+    // Navigate to home
+    router.push('/')
+  } catch (err: any) {
+    errorMessage.value = err.message || 'Login failed'
+  } finally {
+    loading.value = false
+  }
 }
 </script>
-<style scoped>
-label {
-    display: block;
-    margin-bottom: 0.4rem;
-    font-weight: 500;
-}
-
-input[type="text"],
-input[type="password"] {
-    width: 100%;
-    padding: 0.6rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-button {
-    width: 100%;
-    padding: 0.7rem;
-    background: #1976d2;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-button:hover {
-    background: #1565c0;
-}
-
-.error {
-    color: #d32f2f;
-    margin-top: 1rem;
-    text-align: center;
-}
-</style>
