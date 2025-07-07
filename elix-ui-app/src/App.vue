@@ -2,7 +2,6 @@
   <v-app>
     <Loader />
     <router-view v-if="!isAuthLoading" />
-    <!-- <router-view /> -->
   </v-app>
 </template>
 <script setup lang="ts">
