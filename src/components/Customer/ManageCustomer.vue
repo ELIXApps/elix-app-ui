@@ -134,7 +134,9 @@ const { handleSubmit, resetForm, errors } = useForm({
         salutation: v => !!v || 'Select salutation',
         firstName: v => (v && v.length >= 2) || 'First name at least 2 characters',
         lastName: v => (v && v.length >= 2) || 'Last name at least 2 characters',
-        'contactInfo.email': v => (/^[a-z.-]+@[a-z.-]+\.[a-z]+$/i.test(v)) || 'Valid email required',
+        'contactInfo.email': v =>
+            (/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i.test(v)) ||
+            'Valid email required',
         'contactInfo.workPhone': v => (!!v && /^[0-9]{7,}$/.test(v)) || 'Enter at least 7 digits',
         'contactInfo.mobileNo': v => (!!v && /^[0-9]{7,}$/.test(v)) || 'Enter at least 7 digits',
         pan: v => (!!v && /^[A-Z]{5}[0-9]{4}[A-Z]$/.test(v)) || 'Enter a valid PAN',
