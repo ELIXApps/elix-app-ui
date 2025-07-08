@@ -19,6 +19,9 @@
   <!-- Dialog with ManageCustomer -->
   <v-dialog v-model="dialog" transition="dialog-bottom-transition" max-width="60%">
     <v-card prepend-icon="mdi-account" title="Customer Profile" rounded>
+      <template #append>
+        <v-btn icon="mdi-close" variant="text" @click="dialog = false" />
+      </template>
       <v-card-item>
         <ManageCustomer v-if="selectedCustomer" :customer="selectedCustomer" @after-submit="dialog = false" />
       </v-card-item>
