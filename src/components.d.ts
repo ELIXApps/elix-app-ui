@@ -9,12 +9,12 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     Loader: typeof import('./components/common/Loader.vue')['default']
-    ManageCustomer: typeof import('./components/customer/ManageCustomer.vue')['default']
+    ManageCustomer: typeof import('./components/Customer/ManageCustomer.vue')['default']
     PageWrapper: typeof import('./components/common/PageWrapper.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SideBar: typeof import('./components/SideBar.vue')['default']
     Snackbar: typeof import('./components/common/Snackbar.vue')['default']
-    ViewCustomers: typeof import('./components/customer/ViewCustomers.vue')['default']
+    ViewCustomers: typeof import('./components/Customer/ViewCustomers.vue')['default']
   }
 }
