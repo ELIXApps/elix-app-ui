@@ -109,13 +109,13 @@
 
 <script setup lang="ts">
 import { useField, useForm } from 'vee-validate';
-import { CustomerType, type ICustomer } from '@/models/customer';
 import { DefaultErrorMsg } from '@/services/constants';
 import { apiCreate, apiUpdate } from '@/services/apiService';
 import { DataSourceObjects } from '@/models/api';
 import { useSnackbar } from '@/composables/useSnackbar';
 import { useLoader } from '@/composables/useLoader';
 import { watch } from 'vue';
+import { CustomerType, ICustomer } from '@/models/customer';
 
 const { showSnackbar } = useSnackbar();
 const { showLoader, hideLoader } = useLoader();
