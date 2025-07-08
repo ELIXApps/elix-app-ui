@@ -7,10 +7,11 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import { AccessTokenKey, authUrl } from './services/constants';
+import { AccessTokenKey } from './services/constants';
 import ElixRoutes from './router/ElixRoutes';
 import { fetchApi } from './services/fetchHelper';
 import { useLoader } from './composables/useLoader';
+import { ValidateTokenAPIUrl } from './services/apiUrls';
 
 const router = useRouter();
 const isAuthLoading = ref(true);
@@ -37,15 +38,11 @@ function initializeAuth() {
     authFailed();
     return;
   }
-
-
+  
   fetchApi<any>(
-    authUrl,
+    ValidateTokenAPIUrl,
     {
-      method: 'POST',
-      body: {
-        token
-      },
+      method: 'POST'
     }
   ).then(resp => {
     if (resp.statusCode !== 200) {

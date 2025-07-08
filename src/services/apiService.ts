@@ -1,6 +1,6 @@
 import { ActionType, DataSourceObjects, IApiRequest, IApiResponse } from "@/models/api"
 import { fetchApi } from "./fetchHelper"
-import { serverUrl } from "./constants"
+import { ServiceAPIUrl } from "./apiUrls";
 
 async function apiGet<TRequest>(
   dataSourceObject: DataSourceObjects,
@@ -8,7 +8,7 @@ async function apiGet<TRequest>(
 ): Promise<IApiResponse> {
 
   return await fetchApi<IApiResponse, IApiRequest>(
-    serverUrl,
+    ServiceAPIUrl,
     {
       method: 'POST',
       body: {
@@ -26,7 +26,7 @@ async function apiGetAll<TRequest>(
   data?: TRequest
 ): Promise<IApiResponse> {
   return await fetchApi<IApiResponse, IApiRequest>(
-    serverUrl,
+    ServiceAPIUrl,
     {
       method: 'POST',
       body: {
@@ -43,7 +43,7 @@ async function apiCreate<TRequest>(
   data?: TRequest
 ): Promise<IApiResponse> {
   return await fetchApi<IApiResponse, IApiRequest>(
-    serverUrl,
+    ServiceAPIUrl,
     {
       method: 'POST',
       body: {
@@ -60,7 +60,7 @@ async function apiUpdate<TRequest>(
   data?: TRequest
 ): Promise<IApiResponse> {
   return await fetchApi<IApiResponse, IApiRequest>(
-    serverUrl,
+    ServiceAPIUrl,
     {
       method: 'POST',
       body: {

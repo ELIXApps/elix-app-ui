@@ -6,8 +6,8 @@
           <v-card-title class="text-h5 mb-4 justify-center">Login</v-card-title>
 
           <v-form @submit.prevent="handleLogin" ref="formRef">
-            <v-text-field v-model="username" label="Username" prepend-inner-icon="mdi-account"
-              :error-messages="usernameError" density="comfortable" required class="pb-2" />
+            <v-text-field v-model="userId" label="User Id" prepend-inner-icon="mdi-account"
+              :error-messages="userIdError" density="comfortable" required class="pb-2" />
 
             <v-text-field v-model="password" label="Password" type="password" prepend-inner-icon="mdi-lock"
               :error-messages="passwordError" density="comfortable" required class="pb-2" />
@@ -27,7 +27,8 @@
 </template>
 
 <script setup lang="ts">
-import { AccessTokenKey, authUrl, DefaultErrorMsg } from '@/services/constants'
+import { AuthorizeAPIUrl } from '@/services/apiUrls';
+import { AccessTokenKey, DefaultErrorMsg } from '@/services/constants'
 import { fetchApi } from '@/services/fetchHelper';
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -35,38 +36,37 @@ import { useRouter } from 'vue-router'
 const router = useRouter();
 
 // State
-const username = ref('');
+const userId = ref('');
 const password = ref('');
 const errorMessage = ref('');
-const usernameError = ref('');
+const userIdError = ref('');
 const passwordError = ref('');
 const loading = ref(false);
 
 
 async function handleLogin() {
   errorMessage.value = ''
-  usernameError.value = ''
+  userIdError.value = ''
   passwordError.value = ''
 
-  if (!username.value) {
-    usernameError.value = 'Username is required'
+  if (!userId.value) {
+    userIdError.value = 'UserId is required'
   }
   if (!password.value) {
     passwordError.value = 'Password is required'
   }
-  if (usernameError.value || passwordError.value) {
+  if (userIdError.value || passwordError.value) {
     return
   }
 
   loading.value = true
   try {
     const response = await fetchApi<any>(
-      authUrl,
+      AuthorizeAPIUrl,
       {
         method: 'POST',
         body: {
-          tenant: "develop",
-          username: username.value,
+          userId: userId.value,
           password: password.value
         },
       }
