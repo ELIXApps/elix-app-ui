@@ -10,16 +10,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Debug Secrets (Do not use in production)
-        run: |
-          echo "Region: $AWS_BUCKET_NAME"
-          # echo "Region: $AWS_ACCESS_KEY_ID"
-          # echo "Region: $AWS_REGION"
-          # echo "Region: $AWS_SECRET_ACCESS_KEY"
-          # echo "Region: $AWS_SECRET_ACCESS_KEYs"
-        env:
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-
       - name: Checkout code
         uses: actions/checkout@v4
 
