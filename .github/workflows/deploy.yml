@@ -10,6 +10,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Debug Secrets (Do not use in production)
+        run: |
+          echo "Region: $AWS_BUCKET_NAME"
+          # echo "Region: $AWS_ACCESS_KEY_ID"
+          # echo "Region: $AWS_REGION"
+          # echo "Region: $AWS_SECRET_ACCESS_KEY"
+          # echo "Region: $AWS_SECRET_ACCESS_KEYs"
+        env:
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -24,12 +34,6 @@ jobs:
       - name: Build Vue app
         run: npm run build
 
-      - name: Debug Secrets (Do not use in production)
-        run: |
-          echo "Region: $AWS_REGION"
-        env:
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-
       - name: Deploy to S3
         uses: jakejarvis/s3-sync-action@v0.5.1
         with:
@@ -38,5 +42,5 @@ jobs:
           AWS_S3_BUCKET: ${{ secrets.AWS_BUCKET_NAME }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }} # Optional
+          AWS_REGION: ${{ secrets.AWS_SECRET_ACCESS_KEY }} # Optional
           SOURCE_DIR: dist
