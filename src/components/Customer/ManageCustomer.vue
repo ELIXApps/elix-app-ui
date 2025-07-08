@@ -1,213 +1,210 @@
 <template>
-    <!-- Customer Type -->
-    <v-row>
-        <v-col cols="12">
-            <v-radio-group v-model="form.customerType" inline>
-                <template v-slot:label><strong>Customer Type</strong></template>
-                <v-radio label="Business" value="Business"></v-radio>
-                <v-radio label="Individual" value="Individual"></v-radio>
-            </v-radio-group>
-        </v-col>
-    </v-row>
+    <form @submit.prevent="submit">
+        <!-- Customer Type -->
+        <v-row>
+            <v-col cols="4">
+                <v-text-field class="pt-5" density="comfortable" v-model="companyName.value.value" label="Company Name"
+                    :error-messages="companyName.errorMessage.value"></v-text-field>
+            </v-col>
+            <v-col cols="8">
+                <v-radio-group v-model="customerType.value.value" :error-messages="customerType.errorMessage.value"
+                    inline>
+                    <template v-slot:label><strong>Customer Type</strong></template>
+                    <v-radio label="Business" value="Business"></v-radio>
+                    <v-radio label="Individual" value="Individual"></v-radio>
+                </v-radio-group>
+            </v-col>
+        </v-row>
 
-    <!-- Primary Contact -->
-    <v-row class="mt-3">
-        <div class="text-subtitle-1 mb-2 ps-7">Primary Contact</div>
-    </v-row>
-    <v-row class="mt-3">
-        <v-col cols="2">
-            <v-select density="comfortable" v-model="form.salutation" :items="salutations"
-                label="Salutation"></v-select>
-        </v-col>
-        <v-col cols="5">
-            <v-text-field density="comfortable" v-model="form.firstName" label="First Name"></v-text-field>
-        </v-col>
-        <v-col cols="5">
-            <v-text-field density="comfortable" v-model="form.lastName" label="Last Name"></v-text-field>
-        </v-col>
-    </v-row>
+        <!-- Primary Contact -->
+        <v-row class="mt-3">
+            <div class="text-subtitle-1 mb-2 ps-7">Primary Contact</div>
+        </v-row>
+        <v-row class="mt-3">
+            <v-col cols="4">
+                <v-select density="comfortable" v-model="salutation.value.value" :items="salutations" label="Salutation"
+                    :error-messages="salutation.errorMessage.value"></v-select>
+            </v-col>
+            <v-col cols="4">
+                <v-text-field density="comfortable" v-model="firstName.value.value" label="First Name"
+                    :error-messages="firstName.errorMessage.value"></v-text-field>
+            </v-col>
+            <v-col cols="4">
+                <v-text-field density="comfortable" v-model="lastName.value.value" label="Last Name"
+                    :error-messages="lastName.errorMessage.value"></v-text-field>
+            </v-col>
+        </v-row>
 
-    <!-- Company Name -->
-    <v-row>
-        <v-col cols="12">
-            <v-text-field density="comfortable" v-model="form.companyName" label="Company Name"></v-text-field>
-        </v-col>
-    </v-row>
+        <!-- Phone and Email -->
+        <v-row>
+            <v-col cols="4">
+                <v-text-field type="number" density="comfortable" v-model="workPhone.value.value" label="Work Phone"
+                    :error-messages="workPhone.errorMessage.value"></v-text-field>
+            </v-col>
+            <v-col cols="4">
+                <v-text-field type="number" density="comfortable" v-model="mobileNo.value.value" label="Mobile"
+                    :error-messages="mobileNo.errorMessage.value"></v-text-field>
+            </v-col>
+            <v-col cols="4">
+                <v-text-field density="comfortable" v-model="email.value.value" label="Email Address"
+                    prepend-inner-icon="mdi-email" :error-messages="email.errorMessage.value"></v-text-field>
+            </v-col>
+        </v-row>
 
-    <!-- Display Name -->
-    <!--
-    <v-row>
-        <v-col cols="12">
-            <v-combobox density="comfortable" v-model="form.displayName" label="Display Name *"></v-combobox>
-        </v-col>
-    </v-row>
-    -->
+        <!-- PAN and GSTIN/UIN -->
+        <v-row>
+            <v-col cols="6">
+                <v-text-field density="comfortable" v-model="pan.value.value" label="PAN"
+                    :error-messages="pan.errorMessage.value"></v-text-field>
+            </v-col>
+            <v-col cols="6">
+                <v-text-field density="comfortable" v-model="gstin.value.value" label="GSTIN/UIN *"
+                    :error-messages="gstin.errorMessage.value"></v-text-field>
+            </v-col>
+        </v-row>
 
-    <!-- Currency -->
-    <!--
-    <v-row>
-        <v-col cols="12">
-            <v-select density="comfortable" v-model="form.currency" :items="currencies" label="Currency"></v-select>
-        </v-col>
-    </v-row>
-    -->
+        <!-- Billing Address -->
+        <v-row class="mt-3">
+            <v-col cols="12" md="6">
+                <h4 class="pb-5">Billing Address</h4>
+                <v-select density="comfortable" v-model="billingCountry.value.value" :items="countries"
+                    label="Country/Region" :error-messages="billingCountry.errorMessage.value"></v-select>
+                <v-text-field density="comfortable" v-model="billingStreet1.value.value"
+                    label="Street 1"></v-text-field>
+                <v-text-field density="comfortable" v-model="billingStreet2.value.value"
+                    label="Street 2"></v-text-field>
+                <v-text-field density="comfortable" v-model="billingCity.value.value" label="City"></v-text-field>
+                <v-select density="comfortable" v-model="billingState.value.value" :items="states" label="State"
+                    :error-messages="billingState.errorMessage.value"></v-select>
+                <v-text-field density="comfortable" v-model="billingPin.value.value" label="Pin Code"
+                    :error-messages="billingPin.errorMessage.value"></v-text-field>
+            </v-col>
 
-    <!-- Email -->
-    <v-row>
-        <v-col cols="12">
-            <v-text-field density="comfortable" v-model="form.contactInfo.email" label="Email Address"
-                prepend-inner-icon="mdi-email"></v-text-field>
-        </v-col>
-    </v-row>
+            <!-- Shipping Address -->
+            <v-col cols="12" md="6">
+                <h4 class="pb-4">
+                    Shipping Address
+                    <v-btn size="small" variant="text" @click="copyBilling">
+                        Copy billing address
+                    </v-btn>
+                </h4>
+                <v-select density="comfortable" v-model="shippingCountry.value.value" :items="countries"
+                    label="Country/Region"></v-select>
+                <v-text-field density="comfortable" v-model="shippingStreet1.value.value"
+                    label="Street 1"></v-text-field>
+                <v-text-field density="comfortable" v-model="shippingStreet2.value.value"
+                    label="Street 2"></v-text-field>
+                <v-text-field density="comfortable" v-model="shippingCity.value.value" label="City"></v-text-field>
+                <v-select density="comfortable" v-model="shippingState.value.value" :items="states"
+                    label="State"></v-select>
+                <v-text-field density="comfortable" v-model="shippingPin.value.value" label="Pin Code"></v-text-field>
+            </v-col>
+        </v-row>
 
-    <!-- Phone -->
-    <v-row>
-        <v-col cols="6">
-            <v-text-field density="comfortable" v-model="form.contactInfo.workPhone" label="Work Phone"></v-text-field>
-        </v-col>
-        <v-col cols="6">
-            <v-text-field density="comfortable" v-model="form.contactInfo.mobileNo" label="Mobile"></v-text-field>
-        </v-col>
-    </v-row>
-
-    <!-- PAN and GSTIN/UIN -->
-    <v-row>
-        <v-col cols="6">
-            <v-text-field density="comfortable" v-model="form.pan" label="PAN"></v-text-field>
-        </v-col>
-        <v-col cols="6">
-            <v-text-field density="comfortable" v-model="form.gstin" label="GSTIN/UIN *"></v-text-field>
-        </v-col>
-    </v-row>
-
-    <!-- Payment Terms -->
-    <!--
-    <v-row>
-        <v-col cols="12">
-            <v-select density="comfortable" v-model="form.paymentTerms" :items="paymentTerms" label="Payment Terms"></v-select>
-        </v-col>
-    </v-row>
-    -->
-
-    <v-divider />
-
-    <!-- Billing Address -->
-    <v-row class="mt-3">
-        <v-col cols="12" md="6">
-            <h4 class="pb-5">Billing Address</h4>
-            <v-select density="comfortable" v-model="form.billingAddress.country" :items="countries"
-                label="Country/Region"></v-select>
-            <v-text-field density="comfortable" v-model="form.billingAddress.street1" label="Street 1"></v-text-field>
-            <v-text-field density="comfortable" v-model="form.billingAddress.street2" label="Street 2"></v-text-field>
-            <v-text-field density="comfortable" v-model="form.billingAddress.city" label="City"></v-text-field>
-            <v-select density="comfortable" v-model="form.billingAddress.state" :items="states"
-                label="State"></v-select>
-            <v-text-field density="comfortable" v-model="form.billingAddress.pinCode" label="Pin Code"></v-text-field>
-        </v-col>
-
-        <!-- Shipping Address -->
-        <v-col cols="12" md="6">
-            <h4 class="pb-4">
-                Shipping Address
-                <v-btn size="small" variant="text" @click="copyBilling">
-                    Copy billing address
-                </v-btn>
-            </h4>
-            <v-select density="comfortable" v-model="form.shippingAddress.country" :items="countries"
-                label="Country/Region"></v-select>
-            <v-text-field density="comfortable" v-model="form.shippingAddress.street1" label="Street 1"></v-text-field>
-            <v-text-field density="comfortable" v-model="form.shippingAddress.street2" label="Street 2"></v-text-field>
-            <v-text-field density="comfortable" v-model="form.shippingAddress.city" label="City"></v-text-field>
-            <v-select density="comfortable" v-model="form.shippingAddress.state" :items="states"
-                label="State"></v-select>
-            <v-text-field density="comfortable" v-model="form.shippingAddress.pinCode" label="Pin Code"></v-text-field>
-        </v-col>
-    </v-row>
-
-    <v-row class="mt-3 pr-3 pb-3" justify-lg="end">
-        <v-btn size="large" @click="handleSubmit()">Submit</v-btn>
-    </v-row>
+        <v-row class="mt-3 pr-3 pb-3" justify-lg="end">
+            <v-btn size="large" type="submit">Submit</v-btn>
+        </v-row>
+    </form>
 </template>
 
-
 <script setup lang="ts">
-import { reactive } from 'vue';
+import { useField, useForm } from 'vee-validate';
 import { CustomerType, type ICustomer } from '@/models/customer';
 import { DefaultErrorMsg } from '@/services/constants';
 import { apiCreate, apiUpdate } from '@/services/apiService';
 import { DataSourceObjects } from '@/models/api';
 import { useSnackbar } from '@/composables/useSnackbar';
 import { useLoader } from '@/composables/useLoader';
+import { watch } from 'vue';
+
 const { showSnackbar } = useSnackbar();
-
-var emit = defineEmits(['afterSubmit'])
-
-var { customer } = defineProps<{
-    customer?: ICustomer
-}>();
-
-const form = reactive<ICustomer>({
-    customerType: CustomerType.Business,
-    salutation: '',
-    firstName: '',
-    lastName: '',
-    companyName: '',
-    contactInfo: {
-        email: '',
-        workPhone: '',
-        mobileNo: '',
-    },
-    pan: '',
-    gstin: '',
-    billingAddress: {
-        country: '',
-        street1: '',
-        street2: '',
-        city: '',
-        state: '',
-        pinCode: ''
-    },
-    shippingAddress: {
-        country: '',
-        street1: '',
-        street2: '',
-        city: '',
-        state: '',
-        pinCode: ''
-    }
-});
-
-if (customer)
-    Object.assign(form, customer);
-
-
-const salutations = ['Mr.', 'Ms.', 'Mrs.', 'Dr.']
-const countries = ['India', 'United States', 'United Kingdom']
-const states = ['Karnataka', 'Maharashtra', 'Tamil Nadu']
-
 const { showLoader, hideLoader } = useLoader();
 
+const salutations = ['Mr.', 'Ms.', 'Mrs.', 'Dr.'];
+const countries = ['India', 'United States', 'United Kingdom'];
+const states = ['Karnataka', 'Maharashtra', 'Tamil Nadu'];
+
+const emit = defineEmits(['afterSubmit']);
+const { customer } = defineProps<{ customer?: ICustomer }>();
+
+const { handleSubmit, resetForm, errors } = useForm({
+    validationSchema: {
+        customerType: v => !!v || 'Select a customer type',
+        companyName: v => (v && v.length >= 2) || 'Company name at least 2 characters',
+        salutation: v => !!v || 'Select salutation',
+        firstName: v => (v && v.length >= 2) || 'First name at least 2 characters',
+        lastName: v => (v && v.length >= 2) || 'Last name at least 2 characters',
+        'contactInfo.email': v => (/^[a-z.-]+@[a-z.-]+\.[a-z]+$/i.test(v)) || 'Valid email required',
+        'contactInfo.workPhone': v => (!!v && /^[0-9]{7,}$/.test(v)) || 'Enter at least 7 digits',
+        'contactInfo.mobileNo': v => (!!v && /^[0-9]{7,}$/.test(v)) || 'Enter at least 7 digits',
+        pan: v => (!!v && /^[A-Z]{5}[0-9]{4}[A-Z]$/.test(v)) || 'Enter a valid PAN',
+        gstin: v => (v && v.length >= 5) || 'GSTIN required',
+        'billingAddress.country': v => !!v || 'Billing country required',
+        'billingAddress.street1': v => !!v || 'Billing address stree1 required',
+        'billingAddress.state': v => !!v || 'Billing state required',
+        'billingAddress.pinCode': v => (!!v && /^[0-9]{6}$/.test(v)) || '6-digit pin',
+    },
+});
+
+watch(errors, () =>
+    console.log(errors.value))
+
+// Basic fields
+const customerType = useField('customerType', undefined, { initialValue: customer?.customerType ?? CustomerType.Business });
+const companyName = useField('companyName', undefined, { initialValue: customer?.companyName ?? '' });
+const salutation = useField('salutation', undefined, { initialValue: customer?.salutation ?? '' });
+const firstName = useField('firstName', undefined, { initialValue: customer?.firstName ?? '' });
+const lastName = useField('lastName', undefined, { initialValue: customer?.lastName ?? '' });
+const pan = useField('pan', undefined, { initialValue: customer?.pan ?? '' });
+const gstin = useField('gstin', undefined, { initialValue: customer?.gstin ?? '' });
+
+// Contact Info
+const email = useField('contactInfo.email', undefined, { initialValue: customer?.contactInfo?.email ?? '' });
+const workPhone = useField('contactInfo.workPhone', undefined, { initialValue: customer?.contactInfo?.workPhone ?? '' });
+const mobileNo = useField('contactInfo.mobileNo', undefined, { initialValue: customer?.contactInfo?.mobileNo ?? '' });
+
+// Billing Address
+const billingCountry = useField('billingAddress.country', undefined, { initialValue: customer?.billingAddress?.country ?? '' });
+const billingState = useField('billingAddress.state', undefined, { initialValue: customer?.billingAddress?.state ?? '' });
+const billingPin = useField('billingAddress.pinCode', undefined, { initialValue: customer?.billingAddress?.pinCode ?? '' });
+const billingStreet1 = useField('billingAddress.street1', undefined, { initialValue: customer?.billingAddress?.street1 ?? '' });
+const billingStreet2 = useField('billingAddress.street2', undefined, { initialValue: customer?.billingAddress?.street2 ?? '' });
+const billingCity = useField('billingAddress.city', undefined, { initialValue: customer?.billingAddress?.city ?? '' });
+
+// Shipping Address
+const shippingCountry = useField('shippingAddress.country', undefined, { initialValue: customer?.shippingAddress?.country ?? '' });
+const shippingState = useField('shippingAddress.state', undefined, { initialValue: customer?.shippingAddress?.state ?? '' });
+const shippingPin = useField('shippingAddress.pinCode', undefined, { initialValue: customer?.shippingAddress?.pinCode ?? '' });
+const shippingStreet1 = useField('shippingAddress.street1', undefined, { initialValue: customer?.shippingAddress?.street1 ?? '' });
+const shippingStreet2 = useField('shippingAddress.street2', undefined, { initialValue: customer?.shippingAddress?.street2 ?? '' });
+const shippingCity = useField('shippingAddress.city', undefined, { initialValue: customer?.shippingAddress?.city ?? '' });
+
 function copyBilling() {
-    form.shippingAddress = { ...form.billingAddress }
+    shippingCountry.value.value = billingCountry.value.value;
+    shippingState.value.value = billingState.value.value;
+    shippingPin.value.value = billingPin.value.value;
+    shippingStreet1.value.value = billingStreet1.value.value;
+    shippingStreet2.value.value = billingStreet2.value.value;
+    shippingCity.value.value = billingCity.value.value;
 }
 
-
-async function handleSubmit() {
+const submit = handleSubmit(async (values) => {
     try {
         showLoader();
-        var response = form.customerId ? await apiUpdate(DataSourceObjects.customer, form) : await apiCreate(DataSourceObjects.customer, form);
-        console.log(response);
+        const response = values.customerId
+            ? await apiUpdate(DataSourceObjects.customer, values)
+            : await apiCreate(DataSourceObjects.customer, values);
         if (response.message)
-            showSnackbar("Unexpected error occured while saving customer", 'danger');
-        else
+            showSnackbar("Unexpected error occurred while saving customer", 'danger');
+        else {
             showSnackbar("Customer saved successfully", 'success');
+            resetForm();
+        }
     } catch (e) {
         showSnackbar(DefaultErrorMsg, 'danger');
     } finally {
         hideLoader();
-        emit('afterSubmit')
+        emit('afterSubmit');
     }
-}
-
-
+});
 </script>

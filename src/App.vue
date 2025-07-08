@@ -17,7 +17,7 @@ const isAuthLoading = ref(true);
 
 const { showLoader, hideLoader } = useLoader();
 
-watch(isAuthLoading, ()=> {
+watch(isAuthLoading, () => {
   isAuthLoading.value ? showLoader() : hideLoader();
 })
 
