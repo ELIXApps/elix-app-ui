@@ -24,6 +24,12 @@ jobs:
       - name: Build Vue app
         run: npm run build
 
+      - name: Debug Secrets (Do not use in production)
+        run: |
+          echo "Region: $AWS_REGION"
+        env:
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+
       - name: Deploy to S3
         uses: jakejarvis/s3-sync-action@v0.5.1
         with:
