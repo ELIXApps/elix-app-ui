@@ -1,3 +1,5 @@
+import { AccessTokenKey } from "./constants"
+
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE'
 
 export interface FetchOptions<TBody = unknown> {
@@ -23,14 +25,22 @@ export async function fetchApi<TResponse, TBody = unknown>(
   url: string,
   options: FetchOptions<TBody> = {}
 ): Promise<TResponse> {
-  const { method = 'GET', body, headers = {} } = options
+  const { method = 'GET', body, headers = {} } = options;
+  
+  // Compose headers
+  const finalHeaders: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...headers
+  }
+  // Get token from localStorage
+  const token = localStorage.getItem(AccessTokenKey);
+  
+  if (token) 
+    finalHeaders['Authorization'] = `Bearer ${token}`;  
 
   const response = await fetch(url, {
     method,
-    headers: {
-      'Content-Type': 'application/json',
-      ...headers
-    },
+    headers: finalHeaders,
     body: body ? JSON.stringify(body) : undefined
   })
 
@@ -50,3 +60,4 @@ export async function fetchApi<TResponse, TBody = unknown>(
 
   return (await response.json()) as TResponse
 }
+
