@@ -23,7 +23,7 @@
         <v-btn icon="mdi-close" variant="text" @click="dialog = false" />
       </template>
       <v-card-item>
-        <ManageCustomer v-if="selectedCustomer" :customer="selectedCustomer" @after-submit="dialog = false" />
+        <ManageCustomer v-if="selectedCustomer" :customer="selectedCustomer" @after-submit="onDialogClose" />
       </v-card-item>
     </v-card>
   </v-dialog>
@@ -34,7 +34,7 @@ import { useLoader } from '@/composables/useLoader'
 import { DataSourceObjects } from '@/models/api'
 import { ICustomer } from '@/models/customer'
 import { apiGetAll } from '@/services/apiService'
-import { inject, onMounted, ref, computed } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 
 // v-dialog
 const dialog = ref(false)
@@ -65,6 +65,10 @@ const { showLoader, hideLoader } = useLoader();
 
 // Load data on mount
 onMounted(() => {
+  loadAllCustomers();
+})
+
+function loadAllCustomers() {
   showLoader()
   apiGetAll(DataSourceObjects.customer)
     .then(resp => {
@@ -78,7 +82,7 @@ onMounted(() => {
       }))
     })
     .finally(() => hideLoader())
-})
+}
 
 // Computed: filtered items by search query
 const filteredItems = computed(() => {
@@ -104,4 +108,10 @@ function edit(item: { customerId: string }) {
     console.warn('Customer not found for ID:', item.customerId)
   }
 }
+
+function onDialogClose() {
+  dialog.value = false;
+  loadAllCustomers();
+}
+
 </script>

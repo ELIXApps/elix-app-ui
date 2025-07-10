@@ -186,8 +186,8 @@ function copyBilling() {
 const submit = handleSubmit(async (values) => {
     try {
         showLoader();
-        const response = values.customerId
-            ? await apiUpdate(DataSourceObjects.customer, values)
+        const response = customer.customerId
+            ? await apiUpdate(DataSourceObjects.customer, { customerId: customer.customerId, ...values })
             : await apiCreate(DataSourceObjects.customer, values);
         if (response.message)
             showSnackbar("Unexpected error occurred while saving customer", 'danger');
