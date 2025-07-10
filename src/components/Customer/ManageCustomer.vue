@@ -1,109 +1,104 @@
 <template>
     <form @submit.prevent="submit">
-        <!-- Customer Type -->
-        <v-row>
-            <v-col cols="4">
-                <v-text-field class="pt-5" density="comfortable" v-model="companyName.value.value" label="Company Name"
-                    :error-messages="companyName.errorMessage.value"></v-text-field>
-            </v-col>
-            <v-col cols="8">
-                <v-radio-group v-model="customerType.value.value" :error-messages="customerType.errorMessage.value"
-                    inline>
-                    <template v-slot:label><strong>Customer Type</strong></template>
-                    <v-radio label="Business" value="Business"></v-radio>
-                    <v-radio label="Individual" value="Individual"></v-radio>
-                </v-radio-group>
-            </v-col>
-        </v-row>
 
-        <!-- Primary Contact -->
-        <v-row class="mt-3">
-            <div class="text-subtitle-1 mb-2 ps-7">Primary Contact</div>
-        </v-row>
-        <v-row class="mt-3">
-            <v-col cols="4">
-                <v-select density="comfortable" v-model="salutation.value.value" :items="salutations" label="Salutation"
-                    :error-messages="salutation.errorMessage.value"></v-select>
-            </v-col>
-            <v-col cols="4">
-                <v-text-field density="comfortable" v-model="firstName.value.value" label="First Name"
+        <!-- Name section -->
+        <v-row>
+            <v-col cols="4" class="pb-0">
+                <v-text-field variant="outlined" density="compact" v-model="firstName.value.value" label="First Name"
                     :error-messages="firstName.errorMessage.value"></v-text-field>
             </v-col>
-            <v-col cols="4">
-                <v-text-field density="comfortable" v-model="lastName.value.value" label="Last Name"
+            <v-col cols="4" class="pb-0">
+                <v-text-field variant="outlined" density="compact" v-model="lastName.value.value" label="Last Name"
                     :error-messages="lastName.errorMessage.value"></v-text-field>
+            </v-col>
+            <v-col cols="4" class="pb-0">
+                <v-text-field variant="outlined" density="compact" v-model="companyName.value.value"
+                    label="Company Name" :error-messages="companyName.errorMessage.value"></v-text-field>
             </v-col>
         </v-row>
 
-        <!-- Phone and Email -->
+        <!-- phone & email -->
         <v-row>
-            <v-col cols="4">
-                <v-text-field type="number" density="comfortable" v-model="workPhone.value.value" label="Work Phone"
-                    :error-messages="workPhone.errorMessage.value"></v-text-field>
+            <v-col cols="4" class="pb-0">
+                <v-text-field type="number" variant="outlined" density="compact" v-model="workPhone.value.value"
+                    label="Work Phone" :error-messages="workPhone.errorMessage.value"></v-text-field>
             </v-col>
-            <v-col cols="4">
-                <v-text-field type="number" density="comfortable" v-model="mobileNo.value.value" label="Mobile"
-                    :error-messages="mobileNo.errorMessage.value"></v-text-field>
+            <v-col cols="4" class="pb-0">
+                <v-text-field type="number" variant="outlined" density="compact" v-model="mobileNo.value.value"
+                    label="Mobile" :error-messages="mobileNo.errorMessage.value"></v-text-field>
             </v-col>
-            <v-col cols="4">
-                <v-text-field density="comfortable" v-model="email.value.value" label="Email Address"
+            <v-col cols="4" class="pb-0">
+                <v-text-field variant="outlined" density="compact" v-model="email.value.value" label="Email Address"
                     prepend-inner-icon="mdi-email" :error-messages="email.errorMessage.value"></v-text-field>
             </v-col>
         </v-row>
 
-        <!-- PAN and GSTIN/UIN -->
+        <!-- PAN, GSTIN, Customer Type -->
         <v-row>
-            <v-col cols="6">
-                <v-text-field density="comfortable" v-model="pan.value.value" label="PAN"
+            <v-col cols="4" class="pb-0">
+                <v-text-field variant="outlined" density="compact" v-model="pan.value.value" label="PAN"
                     :error-messages="pan.errorMessage.value"></v-text-field>
             </v-col>
-            <v-col cols="6">
-                <v-text-field density="comfortable" v-model="gstin.value.value" label="GSTIN/UIN *"
+            <v-col cols="4" class="pb-0">
+                <v-text-field variant="outlined" density="compact" v-model="gstin.value.value" label="GSTIN"
                     :error-messages="gstin.errorMessage.value"></v-text-field>
+            </v-col>
+            <v-col cols="4" class="pb-0">
+                <v-select outlined variant="outlined" density="compact" v-model="customerType.value.value"
+                    :items="customerTypes" label="Country/Region"
+                    :error-messages="customerType.errorMessage.value"></v-select>
             </v-col>
         </v-row>
 
-        <!-- Billing Address -->
-        <v-row class="mt-3">
-            <v-col cols="12" md="6">
+        <!-- Address Section-->
+        <v-row>
+            <v-col cols="6">
                 <h4 class="pb-5">Billing Address</h4>
-                <v-select density="comfortable" v-model="billingCountry.value.value" :items="countries"
+                <v-select variant="outlined" density="compact" v-model="billingCountry.value.value" :items="countries"
                     label="Country/Region" :error-messages="billingCountry.errorMessage.value"></v-select>
-                <v-text-field density="comfortable" v-model="billingStreet1.value.value"
+                <v-text-field variant="outlined" density="compact" v-model="billingStreet1.value.value"
                     label="Street 1"></v-text-field>
-                <v-text-field density="comfortable" v-model="billingStreet2.value.value"
+                <v-text-field variant="outlined" density="compact" v-model="billingStreet2.value.value"
                     label="Street 2"></v-text-field>
-                <v-text-field density="comfortable" v-model="billingCity.value.value" label="City"></v-text-field>
-                <v-select density="comfortable" v-model="billingState.value.value" :items="states" label="State"
-                    :error-messages="billingState.errorMessage.value"></v-select>
-                <v-text-field density="comfortable" v-model="billingPin.value.value" label="Pin Code"
+                <v-text-field variant="outlined" density="compact" v-model="billingCity.value.value"
+                    label="City"></v-text-field>
+                <v-select variant="outlined" density="compact" v-model="billingState.value.value" :items="states"
+                    label="State" :error-messages="billingState.errorMessage.value"></v-select>
+                <v-text-field variant="outlined" density="compact" v-model="billingPin.value.value" label="Pin Code"
                     :error-messages="billingPin.errorMessage.value"></v-text-field>
             </v-col>
 
             <!-- Shipping Address -->
-            <v-col cols="12" md="6">
+            <v-col cols="6">
                 <h4 class="pb-4">
                     Shipping Address
                     <v-btn size="small" variant="text" @click="copyBilling">
                         Copy billing address
                     </v-btn>
                 </h4>
-                <v-select density="comfortable" v-model="shippingCountry.value.value" :items="countries"
+                <v-select variant="outlined" density="compact" v-model="shippingCountry.value.value" :items="countries"
                     label="Country/Region"></v-select>
-                <v-text-field density="comfortable" v-model="shippingStreet1.value.value"
+                <v-text-field variant="outlined" density="compact" v-model="shippingStreet1.value.value"
                     label="Street 1"></v-text-field>
-                <v-text-field density="comfortable" v-model="shippingStreet2.value.value"
+                <v-text-field variant="outlined" density="compact" v-model="shippingStreet2.value.value"
                     label="Street 2"></v-text-field>
-                <v-text-field density="comfortable" v-model="shippingCity.value.value" label="City"></v-text-field>
-                <v-select density="comfortable" v-model="shippingState.value.value" :items="states"
+                <v-text-field variant="outlined" density="compact" v-model="shippingCity.value.value"
+                    label="City"></v-text-field>
+                <v-select variant="outlined" density="compact" v-model="shippingState.value.value" :items="states"
                     label="State"></v-select>
-                <v-text-field density="comfortable" v-model="shippingPin.value.value" label="Pin Code"></v-text-field>
+                <v-text-field variant="outlined" density="compact" v-model="shippingPin.value.value"
+                    label="Pin Code"></v-text-field>
             </v-col>
         </v-row>
 
-        <v-row class="mt-3 pr-3 pb-3" justify-lg="end">
-            <v-btn size="large" type="submit">Submit</v-btn>
+        <v-row class="mt-0" justify="end">
+            <v-col cols="auto" class="pa-0 pr-3">
+                <v-btn density="compact" size="large" type="submit">
+                    Submit
+                </v-btn>
+            </v-col>
         </v-row>
+
     </form>
 </template>
 
@@ -120,7 +115,7 @@ import { CustomerType, ICustomer } from '@/models/customer';
 const { showSnackbar } = useSnackbar();
 const { showLoader, hideLoader } = useLoader();
 
-const salutations = ['Mr.', 'Ms.', 'Mrs.', 'Dr.'];
+const customerTypes = Object.keys(CustomerType);
 const countries = ['India', 'United States', 'United Kingdom'];
 const states = ['Karnataka', 'Maharashtra', 'Tamil Nadu'];
 
@@ -131,7 +126,6 @@ const { handleSubmit, resetForm, errors } = useForm({
     validationSchema: {
         customerType: v => !!v || 'Select a customer type',
         companyName: v => (v && v.length >= 2) || 'Company name at least 2 characters',
-        salutation: v => !!v || 'Select salutation',
         firstName: v => (v && v.length >= 2) || 'First name at least 2 characters',
         lastName: v => (v && v.length >= 2) || 'Last name at least 2 characters',
         'contactInfo.email': v =>
@@ -154,7 +148,6 @@ watch(errors, () =>
 // Basic fields
 const customerType = useField('customerType', undefined, { initialValue: customer?.customerType ?? CustomerType.Business });
 const companyName = useField('companyName', undefined, { initialValue: customer?.companyName ?? '' });
-const salutation = useField('salutation', undefined, { initialValue: customer?.salutation ?? '' });
 const firstName = useField('firstName', undefined, { initialValue: customer?.firstName ?? '' });
 const lastName = useField('lastName', undefined, { initialValue: customer?.lastName ?? '' });
 const pan = useField('pan', undefined, { initialValue: customer?.pan ?? '' });

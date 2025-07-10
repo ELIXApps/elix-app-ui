@@ -1,7 +1,7 @@
 export interface ICustomer {
     customerId?: string,
     customerType?: CustomerType,
-    salutation?: string,
+    // salutation?: string,
     firstName?: string,
     lastName?: string,
     companyName?: string,
