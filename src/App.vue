@@ -50,6 +50,9 @@ function initializeAuth() {
       return;
     }
     isAuthLoading.value = false;
+  }).catch(e => {
+    console.error(e);
+    authFailed();
   });
 
 }
@@ -60,3 +63,9 @@ function authFailed() {
 }
 
 </script>
+
+<style lang="css">
+body {
+  zoom: 85%
+}
+</style>

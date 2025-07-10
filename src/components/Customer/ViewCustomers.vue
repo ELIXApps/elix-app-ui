@@ -8,7 +8,7 @@
   </v-row>
 
   <!-- Data Table -->
-  <v-data-table :headers="headers" :items="filteredItems" class="elevation-1">
+  <v-data-table density="compact" :headers="headers" :items="filteredItems" class="elevation-1">
     <template v-slot:item.actions="{ item }">
       <v-btn variant="text" icon @click="edit(item)">
         <v-icon>mdi-pencil</v-icon>
@@ -17,7 +17,7 @@
   </v-data-table>
 
   <!-- Dialog with ManageCustomer -->
-  <v-dialog v-model="dialog" transition="dialog-bottom-transition" max-width="60%">
+  <v-dialog v-model="dialog" transition="dialog-bottom-transition" max-width="65%" max-height="100%">
     <v-card prepend-icon="mdi-account" title="Customer Profile" rounded>
       <template #append>
         <v-btn icon="mdi-close" variant="text" @click="dialog = false" />

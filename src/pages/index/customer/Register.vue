@@ -1,5 +1,5 @@
 <template>
-  <PageWrapper title="Register Customer">
+  <PageWrapper title="Register Customer" container-width="75%">
     <template #default>
       <ManageCustomer />
     </template>

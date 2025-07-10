@@ -1,5 +1,5 @@
 <template>
-  <PageWrapper title="View Customers">
+  <PageWrapper title="View Customers" container-width="95%">
     <template #default>
       <ViewCustomers />
     </template>
