@@ -159,16 +159,16 @@ const workPhone = useField('contactInfo.workPhone', undefined, { initialValue: c
 const mobileNo = useField('contactInfo.mobileNo', undefined, { initialValue: customer?.contactInfo?.mobileNo ?? '' });
 
 // Billing Address
-const billingCountry = useField('billingAddress.country', undefined, { initialValue: customer?.billingAddress?.country ?? '' });
-const billingState = useField('billingAddress.state', undefined, { initialValue: customer?.billingAddress?.state ?? '' });
+const billingCountry = useField('billingAddress.country', undefined, { initialValue: customer?.billingAddress?.country ?? undefined });
+const billingState = useField('billingAddress.state', undefined, { initialValue: customer?.billingAddress?.state ?? undefined });
 const billingPin = useField('billingAddress.pinCode', undefined, { initialValue: customer?.billingAddress?.pinCode ?? '' });
 const billingStreet1 = useField('billingAddress.street1', undefined, { initialValue: customer?.billingAddress?.street1 ?? '' });
 const billingStreet2 = useField('billingAddress.street2', undefined, { initialValue: customer?.billingAddress?.street2 ?? '' });
 const billingCity = useField('billingAddress.city', undefined, { initialValue: customer?.billingAddress?.city ?? '' });
 
 // Shipping Address
-const shippingCountry = useField('shippingAddress.country', undefined, { initialValue: customer?.shippingAddress?.country ?? '' });
-const shippingState = useField('shippingAddress.state', undefined, { initialValue: customer?.shippingAddress?.state ?? '' });
+const shippingCountry = useField('shippingAddress.country', undefined, { initialValue: customer?.shippingAddress?.country ?? undefined });
+const shippingState = useField('shippingAddress.state', undefined, { initialValue: customer?.shippingAddress?.state ?? undefined });
 const shippingPin = useField('shippingAddress.pinCode', undefined, { initialValue: customer?.shippingAddress?.pinCode ?? '' });
 const shippingStreet1 = useField('shippingAddress.street1', undefined, { initialValue: customer?.shippingAddress?.street1 ?? '' });
 const shippingStreet2 = useField('shippingAddress.street2', undefined, { initialValue: customer?.shippingAddress?.street2 ?? '' });
