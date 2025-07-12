@@ -1,32 +1,35 @@
 <template>
   <!-- Search Box -->
-  <v-row>
-    <v-col cols="4">
+  <v-row dense>
+    <v-col cols="4" class="pa-0">
       <v-text-field density="compact" v-model="searchQuery" label="Search by name or company or mobile"
         prepend-inner-icon="mdi-magnify" clearable />
     </v-col>
   </v-row>
-
-  <!-- Data Table -->
-  <v-data-table density="compact" :headers="headers" :items="filteredItems" class="elevation-1">
-    <template v-slot:item.actions="{ item }">
-      <v-btn variant="text" icon @click="edit(item)">
-        <v-icon>mdi-pencil</v-icon>
-      </v-btn>
-    </template>
-  </v-data-table>
-
-  <!-- Dialog with ManageCustomer -->
-  <v-dialog v-model="dialog" transition="dialog-bottom-transition" max-width="65%" max-height="100%">
-    <v-card prepend-icon="mdi-account" title="Customer Profile" rounded>
-      <template #append>
-        <v-btn icon="mdi-close" variant="text" @click="dialog = false" />
+  <v-row dense>
+    <!-- Data Table -->
+    <v-data-table density="compact" :headers="headers" :items="filteredItems" class="elevation-1">
+      <template v-slot:item.actions="{ item }">
+        <v-btn variant="text" icon @click="edit(item)">
+          <v-icon>mdi-pencil</v-icon>
+        </v-btn>
       </template>
-      <v-card-item>
-        <ManageCustomer v-if="selectedCustomer" :customer="selectedCustomer" @after-submit="onDialogClose" />
-      </v-card-item>
-    </v-card>
-  </v-dialog>
+    </v-data-table>
+
+    <!-- Dialog with ManageCustomer -->
+    <v-dialog v-model="dialog" transition="dialog-bottom-transition" max-width="65%" max-height="100%">
+      <v-card prepend-icon="mdi-account" title="Customer Profile" rounded>
+        <template #append>
+          <v-btn icon="mdi-close" variant="text" @click="dialog = false" />
+        </template>
+        <v-card-item>
+          <ManageCustomer v-if="selectedCustomer" :customer="selectedCustomer" @after-submit="onDialogClose" />
+        </v-card-item>
+      </v-card>
+    </v-dialog>
+  </v-row>
+
+
 </template>
 
 <script setup lang="ts">

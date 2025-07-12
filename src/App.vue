@@ -66,6 +66,6 @@ function authFailed() {
 
 <style lang="css">
 body {
-  zoom: 85%
+  zoom: 87%
 }
 </style>
