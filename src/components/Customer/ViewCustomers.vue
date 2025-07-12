@@ -1,8 +1,8 @@
 <template>
   <!-- Search Box -->
   <v-row dense>
-    <v-col cols="4" class="pa-0">
-      <v-text-field density="compact" v-model="searchQuery" label="Search by name or company or mobile"
+    <v-col cols="3">
+      <v-text-field density="compact" variant="outlined" v-model="searchQuery" label="Search by name or company or mobile"
         prepend-inner-icon="mdi-magnify" clearable />
     </v-col>
   </v-row>
