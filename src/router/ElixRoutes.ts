@@ -3,7 +3,8 @@ const ElixRoutes = {
     Register: "/customer/register",
     Manage: "/customer/manage",
   },
-  Login: "/login"
+  Login: "/login",
+  Design:"/design"
 };
 
 export default ElixRoutes;

@@ -2,7 +2,7 @@
     <form @submit.prevent="submit">
 
         <!-- Name section -->
-        <v-row>
+        <v-row dense>
             <v-col cols="4" class="pb-0">
                 <v-text-field variant="outlined" density="compact" v-model="firstName.value.value" label="First Name"
                     :error-messages="firstName.errorMessage.value"></v-text-field>
@@ -18,7 +18,7 @@
         </v-row>
 
         <!-- phone & email -->
-        <v-row>
+        <v-row dense>
             <v-col cols="4" class="pb-0">
                 <v-text-field type="number" variant="outlined" density="compact" v-model="workPhone.value.value"
                     label="Work Phone" :error-messages="workPhone.errorMessage.value"></v-text-field>
@@ -34,7 +34,7 @@
         </v-row>
 
         <!-- PAN, GSTIN, Customer Type -->
-        <v-row>
+        <v-row dense>
             <v-col cols="4" class="pb-0">
                 <v-text-field variant="outlined" density="compact" v-model="pan.value.value" label="PAN"
                     :error-messages="pan.errorMessage.value"></v-text-field>
@@ -51,7 +51,7 @@
         </v-row>
 
         <!-- Address Section-->
-        <v-row>
+        <v-row dense>
             <v-col cols="6">
                 <h4 class="pb-5">Billing Address</h4>
                 <v-select variant="outlined" density="compact" v-model="billingCountry.value.value" :items="countries"
@@ -91,9 +91,9 @@
             </v-col>
         </v-row>
 
-        <v-row class="mt-0" justify="end">
-            <v-col cols="auto" class="pa-0 pr-3">
-                <v-btn density="compact" size="large" type="submit">
+        <v-row dense class="mt-0" justify="end">
+            <v-col cols="auto">
+                <v-btn density="compact" variant="outlined" size="x-large" type="submit">
                     Submit
                 </v-btn>
             </v-col>

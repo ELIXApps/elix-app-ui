@@ -19,6 +19,7 @@ router.beforeEach((to, from, next) => {
   const token = localStorage.getItem(AccessTokenKey);
   if (token || to.path === ElixRoutes.Login) {
     next();
+    return;
   } else {
     next({ path: ElixRoutes.Login, query: { redirect: to.fullPath } });
     return;
