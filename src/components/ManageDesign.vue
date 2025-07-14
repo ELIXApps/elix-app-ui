@@ -1,55 +1,73 @@
 <template>
   <form @submit.prevent="submit">
     <v-row dense>
-      <v-col cols="6" md="6">
-        <v-text-field v-model="designName.value.value" :error-messages="designName.errorMessage.value"
-          label="Design Name" density="compact" variant="outlined" />
-      </v-col>
-
-      <v-col cols="12" md="6">
-        <v-select v-model="ornament.value.value" :items="ornamentOptions" :error-messages="ornament.errorMessage.value"
-          label="Ornament" density="compact" variant="outlined" />
-      </v-col>
-    </v-row>
-
-    <v-row dense>
-      <v-col cols="12" md="6">
-        <v-text-field v-model="specification.value.value" :error-messages="specification.errorMessage.value"
-          label="Specification" readonly density="compact" variant="outlined" />
-      </v-col>
-
-      <v-col cols="12" md="6">
-        <v-text-field v-model="unit.value.value" :error-messages="unit.errorMessage.value" label="Unit"
+      <v-col cols="4">
+        <v-text-field v-model="designId.value.value" :error-messages="designId.errorMessage.value" label="Design Id"
           density="compact" variant="outlined" />
       </v-col>
     </v-row>
 
     <v-row dense>
-      <v-col cols="12" md="6">
-        <v-text-field v-model="goldCarat.value.value" :error-messages="goldCarat.errorMessage.value" label="Gold Carat"
-          density="compact" variant="outlined" />
+      <v-col cols="4">
+        <v-select v-model="selectedProduct" :items="productOptions" label="Product" density="compact" variant="outlined"
+          item-title="product" return-object />
       </v-col>
-      <v-col cols="12" md="6">
+
+      <template v-if="selectedProduct">
+        <!-- Specification Name -->
+        <v-col cols="auto" class="d-flex flex-column">
+          <div class="text-caption text-medium-emphasis">Specification</div>
+          <div class="text-body-1">{{ selectedProduct.specification }}</div>
+        </v-col>
+        <!-- Specification Value -->
+        <v-col cols="2">
+          <v-select v-if="selectedProduct.hasMultipleSpecValues" v-model="specificationValue"
+            :items="selectedProduct.specificationOptions" label="Spec Value" density="compact"
+            variant="outlined" />
+          <v-text-field v-else v-model="specificationValue" label="Spec Value" type="number" density="compact"
+            variant="outlined" />
+        </v-col>
+
+        <!-- Unit -->
+        <v-col cols="auto" class="d-flex flex-column">
+          <div class="text-caption text-medium-emphasis">Unit</div>
+          <div class="text-body-1">{{ selectedProduct.unit }}</div>
+        </v-col>
+
+      </template>
+      <v-col v-else cols="auto">
+        <div class="text-medium-emphasis mt-3">Select product to show specifications</div>
+      </v-col>
+    </v-row>
+
+    <!-- Other fields -->
+    <v-row dense>
+      <v-col cols="4">
+        <v-select v-model="goldCarat.value.value" :items="purityOptions" label="Gold Carat" density="compact" variant="outlined"
+          item-title="gold carat" return-object />
+      </v-col>
+      <v-col cols="4">
         <v-text-field v-model="goldColor.value.value" :error-messages="goldColor.errorMessage.value" label="Gold Color"
           density="compact" variant="outlined" />
       </v-col>
     </v-row>
 
     <v-row dense>
-      <v-col cols="12" md="4">
+      <v-col cols="4">
         <v-text-field v-model="goldWeight.value.value" :error-messages="goldWeight.errorMessage.value"
-          label="Gold Weight" density="compact" variant="outlined" />
+          label="Gold Weight in gms" density="compact" variant="outlined" type="number" />
       </v-col>
-      <v-col cols="12" md="4">
+      <v-col cols="4">
         <v-text-field v-model="diamondWeight.value.value" :error-messages="diamondWeight.errorMessage.value"
-          label="Diamond Weight" density="compact" variant="outlined" />
+          label="Diamond Weight in cts" density="compact" variant="outlined" type="number" />
       </v-col>
-      <v-col cols="12" md="4">
+      <v-col cols="4">
         <v-text-field v-model="colorStoneWeight.value.value" :error-messages="colorStoneWeight.errorMessage.value"
-          label="Color Stone Weight" density="compact" variant="outlined" />
+          label="Color Stone Weight in cts" density="compact" variant="outlined" type="number" />
       </v-col>
     </v-row>
 
+    <!-- Image Upload -->
     <v-row dense>
       <v-col cols="12">
         <label class="d-flex align-center mb-4" style="cursor: pointer">
@@ -57,7 +75,6 @@
           <input type="file" accept="image/*" hidden @change="onFileChange" />
           <span>Attach Image</span>
         </label>
-
         <v-responsive v-if="imagePreview" max-width="300" max-height="300">
           <v-img :src="imagePreview" cover />
           <v-btn icon variant="flat" class="ma-2" size="small"
@@ -79,38 +96,36 @@
   </form>
 </template>
 
+
+
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useForm, useField } from 'vee-validate'
+import { IProductOption, productOptions, purityOptions } from '@/models/product';
 
-const ornamentOptions = ['Ring', 'Necklace', 'Earrings', 'Bracelet', 'Pendant']
+const selectedProduct = ref<null | IProductOption>(null);
+const specificationValue = ref('');
 
 const { handleSubmit } = useForm({
   validationSchema: {
-    designName: v => (!!v && v.length >= 1) || 'Design Name is required',
-    ornament: v => !!v || 'Ornament is required',
-    specification: v => (!!v && v.length >= 1) || 'Specification is required',
-    unit: v => (!!v && v.length >= 1) || 'Unit is required',
+    designId: v => (!!v && v.length >= 1) || 'Design Id is required',
     goldCarat: v => (!!v && v.length >= 1) || 'Gold Carat is required',
     goldColor: v => (!!v && v.length >= 1) || 'Gold Color is required',
     goldWeight: v => (!!v && v.length >= 1) || 'Gold Weight is required',
     diamondWeight: v => (!!v && v.length >= 1) || 'Diamond Weight is required',
     colorStoneWeight: v => (!!v && v.length >= 1) || 'Color Stone Weight is required',
   },
-})
+});
 
-const designName = useField('designName')
-const ornament = useField<string>('ornament')
-const specification = useField('specification', undefined, { initialValue: 'Default Specification' })
-const unit = useField('unit')
-const goldCarat = useField('goldCarat')
-const goldColor = useField('goldColor')
-const goldWeight = useField('goldWeight')
-const diamondWeight = useField('diamondWeight')
-const colorStoneWeight = useField('colorStoneWeight')
+const designId = useField('designId');
+const goldCarat = useField<string>('goldCarat');
+const goldColor = useField('goldColor');
+const goldWeight = useField('goldWeight');
+const diamondWeight = useField('diamondWeight');
+const colorStoneWeight = useField('colorStoneWeight');
 
-const imageFile = ref<File | null>(null)
-const imagePreview = ref('')
+const imageFile = ref<File | null>(null);
+const imagePreview = ref('');
 
 function onFileChange(event: Event) {
   const file = (event.target as HTMLInputElement)?.files?.[0]
@@ -133,6 +148,9 @@ function removeImage() {
 }
 
 const submit = handleSubmit(values => {
-  console.log('Form submitted:', values)
+  console.log('Form submitted:', values, {
+    selectedProduct: selectedProduct.value,
+    specificationValue: specificationValue.value,
+  }, imageFile.value)
 })
 </script>
