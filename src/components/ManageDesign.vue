@@ -40,14 +40,11 @@
       </v-col>
     </v-row>
 
-
     <!-- Other fields -->
     <v-row dense>
       <v-col cols="4">
-        <v-select v-model="goldCarat.value.value" :items="purity" label="Gold Carat" density="compact" variant="outlined"
+        <v-select v-model="goldCarat.value.value" :items="purityOptions" label="Gold Carat" density="compact" variant="outlined"
           item-title="gold carat" return-object />
-        <!-- <v-text-field v-model="" :error-messages="goldCarat.errorMessage.value" label="Gold Carat"
-          density="compact" variant="outlined" /> -->
       </v-col>
       <v-col cols="4">
         <v-text-field v-model="goldColor.value.value" :error-messages="goldColor.errorMessage.value" label="Gold Color"
@@ -104,46 +101,10 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useForm, useField } from 'vee-validate'
+import { IProductOption, productOptions, purityOptions } from '@/models/product';
 
-interface IProductOption {
-  product: string,
-  specification: string,
-  unit: string,
-  hasMultipleSpecValues?: boolean,
-  specificationOptions?: string[]
-}
-
-const productOptions: IProductOption[] = [
-  { product: 'BANGLE', specification: 'Size', unit: 'Inch' },
-  { product: 'BRACELET', specification: 'Size', unit: 'Inch' },
-  { product: 'NECKLACE', specification: 'Size', unit: 'Inch' },
-  { product: 'PENDANT', specification: 'Size', unit: 'Inch' },
-  { product: 'LADIES RING', specification: 'Size', unit: 'No' },
-  {
-    product: 'STUD',
-    specification: 'Screw Type',
-    unit: 'Pair',
-    hasMultipleSpecValues: true,
-    specificationOptions: ['Bombay', 'South']
-  },
-  { product: 'MOGGAPU', specification: 'VALAYAM', unit: 'LOCK' },
-  { product: 'GENTS RING', specification: 'Size', unit: 'No' },
-  { product: 'RING', specification: 'Size', unit: 'No' },
-  {
-    product: 'Nose pin',
-    specification: 'Screw Type',
-    unit: 'Pair',
-    hasMultipleSpecValues: true,
-    specificationOptions: ['Bombay', 'South']
-  },
-  { product: 'Backchain', specification: 'Size', unit: 'Inch' },
-  { product: 'KODI', specification: 'Size', unit: 'Inch' },
-];
-
-const purity = ['18K', '22K', '24K'];
-
-const selectedProduct = ref<null | IProductOption>(null)
-const specificationValue = ref('')
+const selectedProduct = ref<null | IProductOption>(null);
+const specificationValue = ref('');
 
 const { handleSubmit } = useForm({
   validationSchema: {
@@ -154,17 +115,17 @@ const { handleSubmit } = useForm({
     diamondWeight: v => (!!v && v.length >= 1) || 'Diamond Weight is required',
     colorStoneWeight: v => (!!v && v.length >= 1) || 'Color Stone Weight is required',
   },
-})
+});
 
-const designId = useField('designId')
-const goldCarat = useField<string>('goldCarat')
-const goldColor = useField('goldColor')
-const goldWeight = useField('goldWeight')
-const diamondWeight = useField('diamondWeight')
-const colorStoneWeight = useField('colorStoneWeight')
+const designId = useField('designId');
+const goldCarat = useField<string>('goldCarat');
+const goldColor = useField('goldColor');
+const goldWeight = useField('goldWeight');
+const diamondWeight = useField('diamondWeight');
+const colorStoneWeight = useField('colorStoneWeight');
 
-const imageFile = ref<File | null>(null)
-const imagePreview = ref('')
+const imageFile = ref<File | null>(null);
+const imagePreview = ref('');
 
 function onFileChange(event: Event) {
   const file = (event.target as HTMLInputElement)?.files?.[0]
@@ -190,6 +151,6 @@ const submit = handleSubmit(values => {
   console.log('Form submitted:', values, {
     selectedProduct: selectedProduct.value,
     specificationValue: specificationValue.value,
-  })
+  }, imageFile.value)
 })
 </script>
