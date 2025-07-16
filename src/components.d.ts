@@ -12,6 +12,7 @@ declare module 'vue' {
     Loader: typeof import('./components/common/Loader.vue')['default']
     ManageCustomer: typeof import('./components/customer/ManageCustomer.vue')['default']
     ManageDesign: typeof import('./components/ManageDesign.vue')['default']
+    OrderBooking: typeof import('./components/orders/OrderBooking.vue')['default']
     PageWrapper: typeof import('./components/common/PageWrapper.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
