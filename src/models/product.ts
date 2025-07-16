@@ -10,7 +10,7 @@ interface IProductOption {
 const productOptions: IProductOption[] = [
   { product: 'BANGLE', specification: 'Size', unit: 'Inch' },
   { product: 'BRACELET', specification: 'Size', unit: 'Inch' },
-  { product: 'NECKLACE', specification: 'Size', unit: 'Inch' },
+  { product: 'NECKLACE', specification: 'Length', unit: 'Inch' },
   { product: 'PENDANT', specification: 'Size', unit: 'Inch' },
   { product: 'LADIES RING', specification: 'Size', unit: 'No' },
   {
@@ -37,8 +37,11 @@ const productOptions: IProductOption[] = [
 
 const purityOptions = ['18K', '22K', '24K'];
 
+const goldColors = ["Yellow", "White", "Rose", "Pink", "Red"];
+
 export {
     IProductOption,
     productOptions,
-    purityOptions
+    purityOptions,
+    goldColors
 }
