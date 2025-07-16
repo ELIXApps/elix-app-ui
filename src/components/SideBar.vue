@@ -51,7 +51,7 @@ const sideMenu: IMenu[] = [
 
 </script>
 <template>
-    <v-navigation-drawer expand-on-hover rail>
+    <v-navigation-drawer>
         <v-list nav dense>
             <template v-for="menu in sideMenu" :key="menu.title">
                 <v-list-group v-if="menu.subMenus" :prepend-icon="menu.icon">
