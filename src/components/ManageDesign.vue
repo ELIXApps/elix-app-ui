@@ -9,28 +9,29 @@
 
     <v-row dense>
       <v-col cols="4">
-        <v-select v-model="selectedProduct" :items="productOptions" label="Product" density="compact" variant="outlined"
-          item-title="product" return-object />
+        <v-select v-model="productField.value.value" :items="productOptions" label="Product" density="compact" variant="outlined"
+          item-title="product" return-object :error-messages="productField.errorMessage.value" />
       </v-col>
 
-      <template v-if="selectedProduct">
+      <template v-if="productField.value.value">
         <!-- Specification Name -->
         <v-col cols="auto" class="d-flex flex-column">
           <div class="text-caption text-medium-emphasis">Specification</div>
-          <div class="text-body-1">{{ selectedProduct.specification }}</div>
+          <div class="text-body-1">{{ productField.value.value.specification }}</div>
         </v-col>
         <!-- Specification Value -->
         <v-col cols="2">
-          <v-select v-if="selectedProduct.hasMultipleSpecValues" v-model="specificationValue"
-            :items="selectedProduct.specificationOptions" label="Spec Value" density="compact" variant="outlined" />
-          <v-text-field v-else v-model="specificationValue" label="Spec Value" type="number" density="compact"
-            variant="outlined" />
+          <v-select v-if="productField.value.value.hasMultipleSpecValues" v-model="specValueField.value.value"
+            :items="productField.value.value.specificationOptions" label="Spec Value" density="compact" variant="outlined"
+            :error-messages="specValueField.errorMessage.value" />
+          <v-text-field v-else v-model="specValueField.value.value" label="Spec Value" type="number" density="compact"
+            variant="outlined" :error-messages="specValueField.errorMessage.value" />
         </v-col>
 
         <!-- Unit -->
         <v-col cols="auto" class="d-flex flex-column">
           <div class="text-caption text-medium-emphasis">Unit</div>
-          <div class="text-body-1">{{ selectedProduct.unit }}</div>
+          <div class="text-body-1">{{ productField.value.value.unit }}</div>
         </v-col>
 
       </template>
@@ -42,8 +43,8 @@
     <!-- Other fields -->
     <v-row dense>
       <v-col cols="4">
-        <v-select v-model="goldCarat.value.value" :items="purityOptions" label="Gold Carat" density="compact"
-          variant="outlined" item-title="gold carat" />
+        <v-select v-model="goldCarat.value.value" :items="purityOptions" :error-messages="goldCarat.errorMessage.value"
+          label="Gold Carat" density="compact" variant="outlined" item-title="gold carat" />
       </v-col>
       <v-col cols="4">
         <v-select v-model="goldColor.value.value" :error-messages="goldColor.errorMessage.value" :items="goldColors"
@@ -54,19 +55,19 @@
     <v-row dense>
       <v-col cols="4">
         <v-text-field v-model="goldWeight.value.value" :error-messages="goldWeight.errorMessage.value"
-          label="Gold Weight in gms" density="compact" variant="outlined" type="text" @blur="formatDecimal(goldWeight)"
+          label="Gold Weight in Gms" density="compact" variant="outlined" type="text" @blur="formatDecimal(goldWeight)"
           @input="limitDecimals($event, goldWeight)" />
       </v-col>
 
       <v-col cols="4">
         <v-text-field v-model="diamondWeight.value.value" :error-messages="diamondWeight.errorMessage.value"
-          label="Diamond Weight in cts" density="compact" variant="outlined" type="text"
+          label="Diamond Weight in Cts" density="compact" variant="outlined" type="text"
           @blur="formatDecimal(diamondWeight)" @input="limitDecimals($event, diamondWeight)" />
       </v-col>
 
       <v-col cols="4">
         <v-text-field v-model="colorStoneWeight.value.value" :error-messages="colorStoneWeight.errorMessage.value"
-          label="Color Stone Weight in cts" density="compact" variant="outlined" type="text"
+          label="Color Stone Weight in Cts" density="compact" variant="outlined" type="text"
           @blur="formatDecimal(colorStoneWeight)" @input="limitDecimals($event, colorStoneWeight)" />
       </v-col>
 
@@ -112,12 +113,12 @@ import { ref } from 'vue'
 import { useForm, useField } from 'vee-validate'
 import { goldColors, IProductOption, productOptions, purityOptions } from '@/models/product';
 
-const selectedProduct = ref<null | IProductOption>(null);
-const specificationValue = ref('');
 
 const { handleSubmit } = useForm({
   validationSchema: {
     designId: v => (!!v && v.length >= 1) || 'Design Id is required',
+    productField: v => (!!v) || 'Product is required',
+    specValueField: v => (!!v && v.toString().trim() !== '') || 'Required',
     goldCarat: v => (!!v && v.length >= 1) || 'Gold Carat is required',
     goldColor: v => (!!v && v.length >= 1) || 'Gold Color is required',
     goldWeight: v =>
@@ -126,9 +127,9 @@ const { handleSubmit } = useForm({
       (v !== null && v !== undefined && v.toString().trim() !== '' && !isNaN(parseFloat(v))) || 'Diamond Weight is required',
     colorStoneWeight: v =>
       (v !== null && v !== undefined && v.toString().trim() !== '' && !isNaN(parseFloat(v))) || 'Color Stone Weight is required',
-
   },
 });
+
 
 const designId = useField('designId');
 const goldCarat = useField<string>('goldCarat');
@@ -136,6 +137,9 @@ const goldColor = useField<string>('goldColor');
 const goldWeight = useField('goldWeight');
 const diamondWeight = useField('diamondWeight');
 const colorStoneWeight = useField('colorStoneWeight');
+const productField = useField<null | IProductOption>('productField');
+const specValueField = useField<any>('specValueField');
+
 // Multiple image handling
 const imageFiles = ref<File[]>([]);
 const imagePreviews = ref<string[]>([]);
@@ -172,8 +176,8 @@ function removeImage(index: number) {
 
 const submit = handleSubmit(values => {
   console.log('Form submitted:', values, {
-    selectedProduct: selectedProduct.value,
-    specificationValue: specificationValue.value,
+    selectedProduct: productField.value.value,
+    specificationValue: specValueField.value.value,
   }, imageFiles.value)
 });
 

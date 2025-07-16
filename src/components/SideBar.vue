@@ -36,7 +36,7 @@ const sideMenu: IMenu[] = [
         title: "Manage Orders",
         icon: "mdi-clipboard-list",
         subMenus: [
-            { title: "Booking", icon: "mdi-calendar-check" },
+            { title: "Booking", icon: "mdi-calendar-check", path: ElixRoutes.Orders.Booking },
             { title: "Job Card", icon: "mdi-clipboard-text" },
             { title: "Summary", icon: "mdi-file-document-outline" },
             { title: "Status", icon: "mdi-chart-box-outline" }
