@@ -50,8 +50,8 @@
                         :items="designOptions" label="Design ID" density="compact" variant="outlined" />
                 </v-col>
                 <v-col cols="3">
-                    <v-select v-model="product.value.value"  :error-messages="''"
-                        :items="productOptions" label="product" density="compact" readonly variant="outlined" />
+                    <v-select v-model="product.value.value" :error-messages="''" :items="productOptions" label="product"
+                        density="compact" readonly variant="outlined" />
                 </v-col>
                 <v-col cols="3">
                     <v-row dense>
@@ -106,6 +106,12 @@
                     <v-text-field v-model="colorStoneWeight.value.value"
                         :error-messages="colorStoneWeight.errorMessage.value" label="Color Stone Weight in Cts"
                         density="compact" variant="outlined" type="number" />
+                </v-col>
+            </v-row>
+
+            <v-row dense>
+                <v-col cols="6">
+                    <v-textarea v-model="specialRemarks.value.value" density="compact" persistent-clear rows="3" clearable label="Special Remarks" variant="outlined"></v-textarea>
                 </v-col>
             </v-row>
 
@@ -183,6 +189,7 @@ const goldColor = useField<string>('goldColor')
 const goldWeight = useField('goldWeight')
 const diamondWeight = useField('diamondWeight')
 const colorStoneWeight = useField('colorStoneWeight')
+const specialRemarks = useField('specialRemarks')
 
 const orderDateMenu = ref(false)
 const dueDateMenu = ref(false)
