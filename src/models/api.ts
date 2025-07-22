@@ -18,7 +18,8 @@ export enum ActionType {
 }
 
 export enum DataSourceObjects {
-    customer = "customer"
+    customer = "customer",
+    design = "design"
 }
 
 export type {

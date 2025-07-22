@@ -1,7 +1,13 @@
 <template>
-  <v-overlay :model-value="loading" class="align-center justify-center" persistent scrim>
-    <v-progress-circular color="primary" size="64" indeterminate />
-  </v-overlay>
+  <v-progress-linear
+    v-if="loading"
+    indeterminate
+    color="primary"
+    height="2"
+    position="fixed"
+    top
+    style="z-index: 9999"
+  />
 </template>
 
 <script setup lang="ts">

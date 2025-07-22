@@ -10,7 +10,7 @@
     <!-- Data Table -->
     <v-data-table density="compact" :headers="headers" :items="filteredItems" class="elevation-1">
       <template v-slot:item.actions="{ item }">
-        <v-btn variant="text" icon @click="edit(item)">
+        <v-btn density="compact" variant="text" icon @click="edit(item)">
           <v-icon>mdi-pencil</v-icon>
         </v-btn>
       </template>
