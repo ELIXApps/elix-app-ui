@@ -1,115 +1,131 @@
 <template>
-  <form @submit.prevent="submit">
-    <v-row dense>
-      <v-col cols="3">
-        <v-text-field v-model="designId.value.value" :error-messages="designId.errorMessage.value" label="Design Id"
-          density="compact" variant="outlined" />
-      </v-col>
-      <v-col cols="3">
-        <v-select v-model="productData.value.value" :items="productOptions" label="Product" density="compact"
-          variant="outlined" item-title="product" return-object :error-messages="productData.errorMessage.value" />
-      </v-col>
-      <v-col cols="3" class="d-flex justify-space-between">
-        <template v-if="productData.value.value">
-          <!-- Specification Name -->
-          <div class="d-flex flex-column">
-            <div class="text-caption text-medium-emphasis">Specification</div>
-            <div class="text-body-1">{{ productData.value.value.specification }}</div>
-          </div>
-          <!-- Specification Value -->
-          <div style="width: 60%;">
-            <v-select v-if="productData.value.value.hasMultipleSpecValues" v-model="specValue.value.value"
-              :items="productData.value.value.specificationOptions" label="Spec Value" density="compact"
-              variant="outlined" :error-messages="specValue.errorMessage.value" />
-            <v-text-field v-else v-model="specValue.value.value" label="Spec Value" type="number" density="compact"
-              variant="outlined" :error-messages="specValue.errorMessage.value" />
-          </div>
+  <v-card class="mb-3">
+    <v-card-item>
+      <form @submit.prevent="submit">
+        <v-row dense class="pt-2">
+          <v-col cols="3">
+            <v-text-field v-model="designId.value.value" :error-messages="designId.errorMessage.value" label="Design Id"
+              density="compact" variant="outlined" />
+          </v-col>
+          <v-col cols="3">
+            <v-select v-model="productData.value.value" :items="productOptions" label="Product" density="compact"
+              variant="outlined" item-title="product" return-object :error-messages="productData.errorMessage.value" />
+          </v-col>
+          <v-col cols="3" class="d-flex justify-space-between">
+            <template v-if="productData.value.value">
+              <!-- Specification Name -->
+              <div class="d-flex flex-column">
+                <div class="text-caption text-medium-emphasis">Specification</div>
+                <div class="text-body-1">{{ productData.value.value.specification }}</div>
+              </div>
+              <!-- Specification Value -->
+              <div style="width: 60%;">
+                <v-select v-if="productData.value.value.hasMultipleSpecValues" v-model="specValue.value.value"
+                  :items="productData.value.value.specificationOptions" label="Spec Value" density="compact"
+                  variant="outlined" :error-messages="specValue.errorMessage.value" />
+                <v-text-field v-else v-model="specValue.value.value" label="Spec Value" type="number" density="compact"
+                  variant="outlined" :error-messages="specValue.errorMessage.value" />
+              </div>
 
-          <!-- Unit -->
-          <div class="d-flex flex-column">
-            <div class="text-caption text-medium-emphasis">Unit</div>
-            <div class="text-body-1">{{ productData.value.value.unit }}</div>
-          </div>
+              <!-- Unit -->
+              <div class="d-flex flex-column">
+                <div class="text-caption text-medium-emphasis">Unit</div>
+                <div class="text-body-1">{{ productData.value.value.unit }}</div>
+              </div>
 
-        </template>
-        <div v-else class="text-medium-emphasis mt-3">Select product to show specifications</div>
-      </v-col>
+            </template>
+            <div v-else class="text-medium-emphasis mt-3">Select product to show specifications</div>
+          </v-col>
 
-      <v-col cols="3">
-        <v-select v-model="goldCarat.value.value" :items="purityOptions" :error-messages="goldCarat.errorMessage.value"
-          label="Gold Carat" density="compact" variant="outlined" item-title="gold carat" />
-      </v-col>
-    </v-row>
+          <v-col cols="3">
+            <v-select v-model="goldCarat.value.value" :items="purityOptions"
+              :error-messages="goldCarat.errorMessage.value" label="Gold Carat" density="compact" variant="outlined"
+              item-title="gold carat" />
+          </v-col>
+        </v-row>
 
-    <v-row dense>
-      <v-col cols="3">
-        <v-select v-model="goldColor.value.value" :error-messages="goldColor.errorMessage.value" :items="goldColors"
-          label="Gold Color" density="compact" variant="outlined" item-title="gold color" />
-      </v-col>
+        <v-row dense>
+          <v-col cols="3">
+            <v-select v-model="goldColor.value.value" :error-messages="goldColor.errorMessage.value" :items="goldColors"
+              label="Gold Color" density="compact" variant="outlined" item-title="gold color" />
+          </v-col>
 
-      <v-col cols="3">
-        <v-text-field v-model="goldWeight.value.value" :error-messages="goldWeight.errorMessage.value"
-          label="Gold Weight in Gms" density="compact" variant="outlined" type="text" @blur="formatDecimal(goldWeight)"
-          @input="limitDecimals($event, goldWeight)" />
-      </v-col>
+          <v-col cols="3">
+            <v-text-field v-model="goldWeight.value.value" :error-messages="goldWeight.errorMessage.value"
+              label="Gold Weight in Gms" density="compact" variant="outlined" type="text"
+              @blur="formatDecimal(goldWeight)" @input="limitDecimals($event, goldWeight)" />
+          </v-col>
 
-      <v-col cols="3">
-        <v-text-field v-model="diamondWeight.value.value" :error-messages="diamondWeight.errorMessage.value"
-          label="Diamond Weight in Cts" density="compact" variant="outlined" type="text"
-          @blur="formatDecimal(diamondWeight)" @input="limitDecimals($event, diamondWeight)" />
-      </v-col>
+          <v-col cols="3">
+            <v-text-field v-model="diamondWeight.value.value" :error-messages="diamondWeight.errorMessage.value"
+              label="Diamond Weight in Cts" density="compact" variant="outlined" type="text"
+              @blur="formatDecimal(diamondWeight)" @input="limitDecimals($event, diamondWeight)" />
+          </v-col>
 
-      <v-col cols="3">
-        <v-text-field v-model="colorStoneWeight.value.value" :error-messages="colorStoneWeight.errorMessage.value"
-          label="Color Stone Weight in Cts" density="compact" variant="outlined" type="text"
-          @blur="formatDecimal(colorStoneWeight)" @input="limitDecimals($event, colorStoneWeight)" />
-      </v-col>
-    </v-row>
+          <v-col cols="3">
+            <v-text-field v-model="colorStoneWeight.value.value" :error-messages="colorStoneWeight.errorMessage.value"
+              label="Color Stone Weight in Cts" density="compact" variant="outlined" type="text"
+              @blur="formatDecimal(colorStoneWeight)" @input="limitDecimals($event, colorStoneWeight)" />
+          </v-col>
+        </v-row>
 
-    <!-- Image Upload -->
-    <v-row dense>
-      <label class="d-flex align-center mb-4" style="cursor: pointer">
-        <v-icon class="mr-2">mdi-paperclip</v-icon>
-        <input type="file" accept="image/*" multiple hidden @change="onFileChange" :disabled="imageFiles.length >= 3" />
-        <span>Attach Images (max 3)</span>
-      </label>
-    </v-row>
+        <!-- Image Upload -->
+        <v-row dense>
+          <label class="d-flex align-center mb-4" style="cursor: pointer">
+            <v-icon class="mr-2">mdi-paperclip</v-icon>
+            <input type="file" accept="image/*" multiple hidden @change="onFileChange"
+              :disabled="imageFiles.length >= 3" />
+            <span>Attach Images (max 3)</span>
+          </label>
+        </v-row>
 
-    <v-row dense class="d-flex justify-space-between">
-      <v-col cols="8" class="d-flex">
-        <v-responsive max-width="170" max-height="170" class="mr-2" v-for="(preview, index) in imagePreviews"
-          :key="index">
-          <v-img :src="preview" cover />
-          <v-btn icon variant="flat" class="ma-2" size="x-small"
-            style="position: absolute; top: 0; right: 0; z-index: 1; background-color: rgba(0,0,0,0.6)"
-            @click="removeImage(index)">
-            <v-icon color="white">mdi-close</v-icon>
-          </v-btn>
-        </v-responsive>
-      </v-col>
-      <v-col cols="auto" class="d-flex flex-column justify-end">
-        <v-btn density="compact" variant="outlined" size="x-large" type="submit">
-          Submit
-        </v-btn>
-      </v-col>
-    </v-row>
-  </form>
+        <v-row dense class="d-flex justify-space-between pb-2">
+          <v-col cols="8" class="d-flex">
+            <v-responsive max-width="170" max-height="170" class="mr-2" v-for="(preview, index) in imagePreviews"
+              :key="index">
+              <v-img :src="preview" cover />
+              <v-btn icon variant="flat" class="ma-2" size="x-small"
+                style="position: absolute; top: 0; right: 0; z-index: 1; background-color: rgba(0,0,0,0.6)"
+                @click="removeImage(index)">
+                <v-icon color="white">mdi-close</v-icon>
+              </v-btn>
+            </v-responsive>
+          </v-col>
+          <v-col cols="auto" class="d-flex flex-column justify-end">
+            <v-btn density="compact" variant="outlined" size="x-large" type="submit">
+              Submit
+            </v-btn>
+          </v-col>
+        </v-row>
+      </form>
+    </v-card-item>
+  </v-card>
+  <v-card>
+    <v-card-title>
+      <v-text-field hide-details density="compact" width="25%" variant="outlined" v-model="searchQuery"
+        label="Search by Design ID, Product etc" prepend-inner-icon="mdi-magnify" clearable />
+    </v-card-title>
+    <v-data-table density="compact" :headers="headers" :items="filteredItems" :items-per-page="5"
+      :items-per-page-options="[5, 10, 25, 50]" class="elevation-1" />
+  </v-card>
 </template>
 
 
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useForm, useField } from 'vee-validate'
 import { goldColors, IProductOption, productOptions, purityOptions } from '@/models/product';
 import { useLoader } from '@/composables/useLoader';
-import { apiCreate, apiGet, apiGetAll } from '@/services/apiService';
+import { apiCreate, apiGetAll } from '@/services/apiService';
 import { DataSourceObjects } from '@/models/api';
 import { fetchApi } from '@/services/fetchHelper';
 import { DesignImageUploadUrl } from '@/services/apiUrls';
 
 const { showLoader, hideLoader } = useLoader();
 
+// Search input
+const searchQuery = ref('')
 
 const { handleSubmit } = useForm({
   validationSchema: {
@@ -127,10 +143,24 @@ const { handleSubmit } = useForm({
   },
 });
 
-onMounted(()=> {
-  apiGetAll(DataSourceObjects.design).then(resp => console.log(resp))
-})
 
+// Table headers
+const headers = [
+  { title: 'Design ID', value: 'designId', sortable: true },
+  { title: 'Product', value: 'product', sortable: true },
+  { title: 'Specification', value: 'specification', sortable: true },
+  { title: 'Unit', value: 'unit', sortable: true },
+  { title: 'Spec Value', value: 'specValue', sortable: true },
+  { title: 'Gold Carat', value: 'goldCarat', sortable: true },
+  { title: 'Gold Color', value: 'goldColor', sortable: true },
+  { title: 'Gold Weight', value: 'goldWeight', sortable: true },
+  { title: 'Diamond Weight', value: 'diamondWeight', sortable: true },
+  { title: 'Color Stone Weight', value: 'colorStoneWeight', sortable: true },
+]
+interface IDesignTableItem { designId: string; product: string; specification: string; unit: string; specValue: string; goldCarat: string; goldColor: string; goldWeight: string; diamondWeight: string, colorStoneWeight: string }
+const items = ref<
+  IDesignTableItem[]
+>([]);
 
 const designId = useField('designId');
 const goldCarat = useField<string>('goldCarat');
@@ -144,6 +174,45 @@ const specValue = useField<any>('specValue');
 // Multiple image handling
 const imageFiles = ref<File[]>([]);
 const imagePreviews = ref<string[]>([]);
+
+
+
+onMounted(() => {
+  loadAllDesigns();
+})
+
+const filteredItems = computed(() => {
+  const query = searchQuery.value.trim().toLowerCase()
+  if (!query) return items.value
+
+  return items.value.filter(
+    i =>
+      i.designId.toLowerCase().includes(query) ||
+      i.goldColor.toLowerCase().includes(query) ||
+      i.product.toLowerCase().includes(query) ||
+      i.specification.toLowerCase().includes(query) ||
+      i.unit.toLowerCase().includes(query)
+  )
+})
+
+function loadAllDesigns() {
+  showLoader()
+  apiGetAll(DataSourceObjects.design).then(resp => {
+    items.value = (resp.value as any[]).map(x => ({
+      colorStoneWeight: x.colorStoneWeight,
+      designId: x.designId,
+      diamondWeight: x.diamondWeight,
+      goldCarat: x.goldCarat,
+      goldColor: x.goldColor,
+      goldWeight: x.goldWeight,
+      specValue: x.specValue,
+      product: x.productData.product,
+      specification: x.productData.specification,
+      unit: x.productData.unit
+    }))
+  })
+    .finally(() => hideLoader())
+}
 
 function onFileChange(event: Event) {
   const files = Array.from(
@@ -179,7 +248,7 @@ const submit = handleSubmit(async values => {
   showLoader();
   var response = await apiCreate(DataSourceObjects.design, values)
   console.log('Form submitted:', response, imageFiles.value)
-
+  loadAllDesigns();
   var formData = new FormData();
   imageFiles.value.forEach(file => {
     formData.append(file.name, file);
