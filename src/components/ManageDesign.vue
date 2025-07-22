@@ -36,7 +36,7 @@
 
       </template>
       <v-col v-else cols="auto">
-        <div class="text-medium-emphasis mt-3">Select product to show specifications.</div>
+        <div class="text-medium-emphasis mt-3">Select product to show specifications</div>
       </v-col>
     </v-row>
 
