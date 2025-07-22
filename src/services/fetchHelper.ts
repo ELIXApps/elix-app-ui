@@ -20,44 +20,50 @@ export class FetchError extends Error {
     this.response = response
   }
 }
-
 export async function fetchApi<TResponse, TBody = unknown>(
   url: string,
   options: FetchOptions<TBody> = {}
 ): Promise<TResponse> {
   const { method = 'GET', body, headers = {} } = options;
-  
-  // Compose headers
-  const finalHeaders: Record<string, string> = {
-    'Content-Type': 'application/json',
-    ...headers
+
+  const finalHeaders: Record<string, string> = {};
+  const isFormData = typeof FormData !== 'undefined' && body instanceof FormData;
+
+  // Set JSON headers if not FormData
+  if (!isFormData) {
+    finalHeaders['Content-Type'] = 'application/json';
   }
-  // Get token from localStorage
+
+  // Add Authorization header
   const token = localStorage.getItem(AccessTokenKey);
-  
-  if (token) 
-    finalHeaders['Authorization'] = `Bearer ${token}`;  
+  if (token) {
+    finalHeaders['Authorization'] = `Bearer ${token}`;
+  }
 
   const response = await fetch(url, {
     method,
-    headers: finalHeaders,
-    body: body ? JSON.stringify(body) : undefined
-  })
+    headers: { ...finalHeaders, ...headers },
+    body: body
+      ? isFormData
+        ? (body as BodyInit)
+        : JSON.stringify(body)
+      : undefined,
+  });
 
   if (!response.ok) {
-    const errorText = await response.text()
+    const errorText = await response.text();
     throw new FetchError(
       `Request failed with status ${response.status}: ${errorText}`,
       response.status,
       response
-    )
+    );
   }
 
   if (response.status === 204) {
-    // No content
-    return {} as TResponse
+    return {} as TResponse; // No Content
   }
 
-  return (await response.json()) as TResponse
+  return (await response.json()) as TResponse;
 }
+
 
