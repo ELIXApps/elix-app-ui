@@ -4,8 +4,8 @@
       <form @submit.prevent="submit">
         <v-row dense class="pt-2">
           <v-col cols="3">
-            <v-text-field v-model="designId.value.value" :error-messages="designId.errorMessage.value" label="Design Id"
-              density="compact" variant="outlined" />
+            <v-text-field v-model="designNo.value.value" :error-messages="designNo.errorMessage.value"
+              label="Design No." density="compact" variant="outlined" />
           </v-col>
           <v-col cols="3">
             <v-select v-model="productData.value.value" :items="productOptions" label="Product" density="compact"
@@ -81,7 +81,7 @@
 
         <v-row dense class="d-flex justify-space-between pb-2">
           <v-col cols="8" class="d-flex">
-            <v-responsive max-width="170" max-height="170" class="mr-2" v-for="(preview, index) in imagePreviews"
+            <v-responsive max-width="100" max-height="100" class="mr-2" v-for="(preview, index) in imagePreviews"
               :key="index">
               <v-img :src="preview" cover />
               <v-btn icon variant="flat" class="ma-2" size="x-small"
@@ -103,10 +103,16 @@
   <v-card>
     <v-card-title>
       <v-text-field hide-details density="compact" width="25%" variant="outlined" v-model="searchQuery"
-        label="Search by Design ID, Product etc" prepend-inner-icon="mdi-magnify" clearable />
+        label="Search by Design No., Product etc" prepend-inner-icon="mdi-magnify" clearable />
     </v-card-title>
     <v-data-table density="compact" :headers="headers" :items="filteredItems" :items-per-page="5"
-      :items-per-page-options="[5, 10, 25, 50]" class="elevation-1" />
+      :items-per-page-options="[5, 10, 25, 50]" class="elevation-1">
+      <template v-slot:item.actions="{ item }">
+        <v-btn density="compact" variant="text" icon @click="edit(item)">
+          <v-icon>mdi-pencil</v-icon>
+        </v-btn>
+      </template>
+      </v-data-table>
   </v-card>
 </template>
 
@@ -117,19 +123,22 @@ import { computed, onMounted, ref } from 'vue'
 import { useForm, useField } from 'vee-validate'
 import { goldColors, IProductOption, productOptions, purityOptions } from '@/models/product';
 import { useLoader } from '@/composables/useLoader';
-import { apiCreate, apiGetAll } from '@/services/apiService';
+import { apiCreate, apiGetAll, apiUpdate } from '@/services/apiService';
 import { DataSourceObjects } from '@/models/api';
 import { fetchApi } from '@/services/fetchHelper';
-import { DesignImageUploadUrl } from '@/services/apiUrls';
+import { DesignImageUploadUrl, DesignImageUrl } from '@/services/apiUrls';
+import { useSnackbar } from '@/composables/useSnackbar';
+import { DefaultErrorMsg } from '@/services/constants';
 
 const { showLoader, hideLoader } = useLoader();
+const { showSnackbar } = useSnackbar();
 
 // Search input
 const searchQuery = ref('')
 
-const { handleSubmit } = useForm({
+const { handleSubmit, resetForm } = useForm({
   validationSchema: {
-    designId: v => (!!v && v.length >= 1) || 'Design Id is required',
+    designNo: v => (!!v && v.length >= 1) || 'Design No. is required',
     productData: v => (!!v) || 'Product is required',
     specValue: v => (!!v && v.toString().trim() !== '') || 'Required',
     goldCarat: v => (!!v && v.length >= 1) || 'Gold Carat is required',
@@ -146,40 +155,22 @@ const { handleSubmit } = useForm({
 
 // Table headers
 const headers = [
-  { title: 'Design ID', value: 'designId', sortable: true },
+  { title: 'Design No.', value: 'designNo', sortable: true },
   { title: 'Product', value: 'product', sortable: true },
   { title: 'Specification', value: 'specification', sortable: true },
-  { title: 'Unit', value: 'unit', sortable: true },
   { title: 'Spec Value', value: 'specValue', sortable: true },
+  { title: 'Unit', value: 'unit', sortable: true },
   { title: 'Gold Carat', value: 'goldCarat', sortable: true },
   { title: 'Gold Color', value: 'goldColor', sortable: true },
   { title: 'Gold Weight', value: 'goldWeight', sortable: true },
   { title: 'Diamond Weight', value: 'diamondWeight', sortable: true },
   { title: 'Color Stone Weight', value: 'colorStoneWeight', sortable: true },
+  { title: 'Actions', value: 'actions', sortable: false },
 ]
-interface IDesignTableItem { designId: string; product: string; specification: string; unit: string; specValue: string; goldCarat: string; goldColor: string; goldWeight: string; diamondWeight: string, colorStoneWeight: string }
+interface IDesignTableItem { designId: string; designNo: string; product: string; specification: string; unit: string; specValue: string; goldCarat: string; goldColor: string; goldWeight: string; diamondWeight: string, colorStoneWeight: string }
 const items = ref<
   IDesignTableItem[]
 >([]);
-
-const designId = useField('designId');
-const goldCarat = useField<string>('goldCarat');
-const goldColor = useField<string>('goldColor');
-const goldWeight = useField('goldWeight');
-const diamondWeight = useField('diamondWeight');
-const colorStoneWeight = useField('colorStoneWeight');
-const productData = useField<null | IProductOption>('productData');
-const specValue = useField<any>('specValue');
-
-// Multiple image handling
-const imageFiles = ref<File[]>([]);
-const imagePreviews = ref<string[]>([]);
-
-
-
-onMounted(() => {
-  loadAllDesigns();
-})
 
 const filteredItems = computed(() => {
   const query = searchQuery.value.trim().toLowerCase()
@@ -187,7 +178,7 @@ const filteredItems = computed(() => {
 
   return items.value.filter(
     i =>
-      i.designId.toLowerCase().includes(query) ||
+      i.designNo.toLowerCase().includes(query) ||
       i.goldColor.toLowerCase().includes(query) ||
       i.product.toLowerCase().includes(query) ||
       i.specification.toLowerCase().includes(query) ||
@@ -195,12 +186,29 @@ const filteredItems = computed(() => {
   )
 })
 
+const designNo = useField('designNo');
+const goldCarat = useField<string>('goldCarat');
+const goldColor = useField<string>('goldColor');
+const goldWeight = useField('goldWeight');
+const diamondWeight = useField('diamondWeight');
+const colorStoneWeight = useField('colorStoneWeight');
+const productData = useField<null | IProductOption>('productData');
+const specValue = useField<any>('specValue');
+const imageFiles = ref<File[]>([]);
+const imagePreviews = ref<string[]>([]);
+const designImageMap = new Map<string, string[]>();
+
+onMounted(() => {
+  loadAllDesigns();
+})
+
 function loadAllDesigns() {
   showLoader()
   apiGetAll(DataSourceObjects.design).then(resp => {
     items.value = (resp.value as any[]).map(x => ({
-      colorStoneWeight: x.colorStoneWeight,
       designId: x.designId,
+      colorStoneWeight: x.colorStoneWeight,
+      designNo: x.designNo,
       diamondWeight: x.diamondWeight,
       goldCarat: x.goldCarat,
       goldColor: x.goldColor,
@@ -219,6 +227,13 @@ function onFileChange(event: Event) {
     (event.target as HTMLInputElement)?.files ?? []
   );
 
+  combineImageAndGeneratePreviews(files);
+
+  // Reset input value so selecting the same file again triggers change
+  (event.target as HTMLInputElement).value = "";
+}
+
+function combineImageAndGeneratePreviews(files: File[]){
   // Combine existing files with new ones, max 3
   const combined = [...imageFiles.value, ...files].slice(0, 3);
 
@@ -233,33 +248,76 @@ function onFileChange(event: Event) {
     };
     reader.readAsDataURL(file);
   });
-
-  // Reset input value so selecting the same file again triggers change
-  (event.target as HTMLInputElement).value = "";
 }
+
 
 function removeImage(index: number) {
   imageFiles.value.splice(index, 1);
   imagePreviews.value.splice(index, 1);
 }
 
+async function filesFromUrls(urls: string[]): Promise<File[]> {
+  const files = await Promise.all(
+    urls.map(async (url, index) => {
+      const response = await fetch(url);
+      const blob = await response.blob();
+
+      // Try to extract filename from URL or fallback
+      const urlObj = new URL(url);
+      const pathname = urlObj.pathname;
+      const originalName = pathname.substring(pathname.lastIndexOf('/') + 1).split('?')[0];
+      const filename = originalName || `image_${index}.jpg`;
+
+      return new File([blob], filename, { type: blob.type || 'image/jpeg' });
+    })
+  );
+
+  return files;
+}
 
 const submit = handleSubmit(async values => {
   showLoader();
-  var response = await apiCreate(DataSourceObjects.design, values)
-  console.log('Form submitted:', response, imageFiles.value)
+  var response = values.designId ? await apiUpdate(DataSourceObjects.design, values) : await apiCreate(DataSourceObjects.design, values);
+  if (!['created','updated'].includes(response.status)) {
+    showSnackbar(DefaultErrorMsg, 'danger');
+    hideLoader();
+    return;
+  }
+
+  if (imageFiles.value.length) {
+    var formData = new FormData();
+    imageFiles.value.forEach(file => {
+      formData.append(file.name, file);
+    });
+    fetchApi(DesignImageUploadUrl(values.designNo), {
+      method: 'POST',
+      body: formData
+    });
+  }
+  showSnackbar("Design saved successfully");
+  resetDesignForm(values.designNo);
   loadAllDesigns();
-  var formData = new FormData();
-  imageFiles.value.forEach(file => {
-    formData.append(file.name, file);
-  });
-  fetchApi(DesignImageUploadUrl(values.designId), {
-    method: 'POST',
-    body: formData
-  })
   hideLoader();
 });
 
+function resetDesignForm(designNo: string) {
+  resetForm({
+    values: {
+      designId: null,
+      designNo: null,
+      productData: null,
+      specValue: null,
+      goldCarat: null,
+      goldColor: null,
+      goldWeight: null,
+      diamondWeight: null,
+      colorStoneWeight: null
+    }
+  });
+  imageFiles.value = [];
+  imagePreviews.value = [];
+  designImageMap.delete(designNo);
+}
 
 function formatDecimal(field) {
   const raw = field.value.value?.toString().trim();
@@ -294,5 +352,44 @@ function limitDecimals(event: Event, field) {
   // Update field value without triggering formatting
   field.value.value = value;
 }
+
+async function edit(item: IDesignTableItem) {
+  resetForm({
+    values: {
+      designId: item.designId,
+      designNo: item.designNo,
+      productData: productOptions.find(x => x.product == item.product),
+      specValue: item.specValue,
+      goldCarat: item.goldCarat,
+      goldColor: item.goldColor,
+      goldWeight: item.goldWeight,
+      diamondWeight: item.diamondWeight,
+      colorStoneWeight: item.colorStoneWeight
+    }
+  });
+
+  var imageUrls = designImageMap.get(item.designNo);
+
+  if(!imageUrls?.length) {
+    imageUrls = await getDesignImageUrl(item.designNo);
+    designImageMap.set(item.designNo, imageUrls);
+  }
+
+  if(imageUrls?.length) {
+    const imageFiles = await filesFromUrls(imageUrls);
+    combineImageAndGeneratePreviews(imageFiles);
+  }
+  
+}
+
+async function getDesignImageUrl(designNo: string) {
+  try {
+    return await fetchApi<string[]>(DesignImageUrl(designNo), {
+      method: 'GET'
+    });
+  } catch(error){
+    showSnackbar("Unexpected error while fetching design images. Please try again later", 'danger');
+  }
+} 
 
 </script>
