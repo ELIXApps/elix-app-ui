@@ -51,8 +51,20 @@ const sideMenu: IMenu[] = [
 
 </script>
 <template>
+
     <v-navigation-drawer>
+
+
+        <template v-slot:prepend>
+            <v-list-item lines="two">
+                <p class="text-h4 font-weight-bold">E L I X</p>
+            </v-list-item>
+            <v-list-item lines="three" prepend-avatar="https://randomuser.me/api/portraits/lego/5.jpg"
+                subtitle="Logged in" title="vishnu vardhan"></v-list-item>
+        </template>
+
         <v-list nav dense>
+            <!-- <v-list-item>ELIX</v-list-item> -->
             <template v-for="menu in sideMenu" :key="menu.title">
                 <v-list-group v-if="menu.subMenus" :prepend-icon="menu.icon">
                     <template #activator="{ props }">

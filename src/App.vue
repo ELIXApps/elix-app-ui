@@ -38,7 +38,7 @@ function initializeAuth() {
     authFailed();
     return;
   }
-  
+
   fetchApi<any>(
     ValidateTokenAPIUrl,
     {
@@ -67,5 +67,9 @@ function authFailed() {
 <style lang="css">
 body {
   zoom: 86%
+}
+
+.v-field--variant-outlined {
+  border-radius: 8px !important;
 }
 </style>

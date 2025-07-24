@@ -2,7 +2,7 @@
   <v-container class="fill-height" fluid>
     <v-row align="center" justify="center">
       <v-col cols="12" sm="8" md="4">
-        <v-card class="pa-6" elevation="10">
+        <v-card flat class="pa-6" elevation="10">
           <v-card-title class="text-h5 mb-4 justify-center">Login</v-card-title>
 
           <v-form @submit.prevent="handleLogin" ref="formRef">
@@ -16,7 +16,7 @@
               {{ errorMessage }}
             </v-alert>
 
-            <v-btn :loading="loading" type="submit" color="primary" block size="large">
+            <v-btn :loading="loading" type="submit" variant="tonal" color="primary" block size="large">
               Login
             </v-btn>
           </v-form>
@@ -71,14 +71,14 @@ async function handleLogin() {
         },
       }
     );
-    
-    if(response?.statusCode != 200){
+
+    if (response?.statusCode != 200) {
       let respBody = JSON.parse(response.body);
       errorMessage.value = respBody.message || DefaultErrorMsg;
     } else {
       let respBody = JSON.parse(response.body);
       localStorage.setItem(AccessTokenKey, respBody.token)
-  
+
       // Navigate to home
       router.push('/')
     }

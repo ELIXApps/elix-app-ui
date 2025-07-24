@@ -1,6 +1,6 @@
 <template>
     <!-- TOP PART: FORM -->
-    <v-card class="mb-3">
+    <v-card flat class="mb-3">
         <v-card-item>
             <form @submit.prevent="submitForm">
                 <!-- First Row -->
@@ -122,7 +122,7 @@
                         </v-responsive>
                     </v-col>
                     <v-col cols="auto" class="d-flex flex-column justify-end">
-                        <v-btn density="compact" variant="outlined" size="x-large" type="submit">
+                        <v-btn density="compact" variant="tonal" color="#4CAF50" size="x-large" type="submit">
                             Submit
                         </v-btn>
                     </v-col>
@@ -133,7 +133,7 @@
     </v-card>
 
     <!-- BOTTOM PART: DATATABLE -->
-    <v-card>
+    <v-card flat>
         <v-card-title>
             <v-text-field hide-details density="compact" width="25%" variant="outlined" v-model="searchQuery"
                 label="Search by Booking ID, Design ID etc" prepend-inner-icon="mdi-magnify" clearable />

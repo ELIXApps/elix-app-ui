@@ -1,5 +1,5 @@
 <template>
-  <v-card class="mb-3">
+  <v-card flat class="mb-3">
     <v-card-item>
       <form @submit.prevent="submit">
         <v-row dense class="pt-2">
@@ -92,7 +92,7 @@
             </v-responsive>
           </v-col>
           <v-col cols="auto" class="d-flex flex-column justify-end">
-            <v-btn density="compact" variant="outlined" size="x-large" type="submit">
+            <v-btn density="compact" variant="tonal" color="#4CAF50" size="x-large" type="submit">
               Submit
             </v-btn>
           </v-col>
@@ -100,7 +100,7 @@
       </form>
     </v-card-item>
   </v-card>
-  <v-card>
+  <v-card flat>
     <v-card-title>
       <v-text-field hide-details density="compact" width="25%" variant="outlined" v-model="searchQuery"
         label="Search by Design No., Product etc" prepend-inner-icon="mdi-magnify" clearable />
@@ -112,7 +112,7 @@
           <v-icon>mdi-pencil</v-icon>
         </v-btn>
       </template>
-      </v-data-table>
+    </v-data-table>
   </v-card>
 </template>
 
@@ -233,7 +233,7 @@ function onFileChange(event: Event) {
   (event.target as HTMLInputElement).value = "";
 }
 
-function combineImageAndGeneratePreviews(files: File[]){
+function combineImageAndGeneratePreviews(files: File[]) {
   // Combine existing files with new ones, max 3
   const combined = [...imageFiles.value, ...files].slice(0, 3);
 
@@ -278,7 +278,7 @@ async function filesFromUrls(urls: string[]): Promise<File[]> {
 const submit = handleSubmit(async values => {
   showLoader();
   var response = values.designId ? await apiUpdate(DataSourceObjects.design, values) : await apiCreate(DataSourceObjects.design, values);
-  if (!['created','updated'].includes(response.status)) {
+  if (!['created', 'updated'].includes(response.status)) {
     showSnackbar(DefaultErrorMsg, 'danger');
     hideLoader();
     return;
@@ -370,16 +370,16 @@ async function edit(item: IDesignTableItem) {
 
   var imageUrls = designImageMap.get(item.designNo);
 
-  if(!imageUrls?.length) {
+  if (!imageUrls?.length) {
     imageUrls = await getDesignImageUrl(item.designNo);
     designImageMap.set(item.designNo, imageUrls);
   }
 
-  if(imageUrls?.length) {
+  if (imageUrls?.length) {
     const imageFiles = await filesFromUrls(imageUrls);
     combineImageAndGeneratePreviews(imageFiles);
   }
-  
+
 }
 
 async function getDesignImageUrl(designNo: string) {
@@ -387,9 +387,9 @@ async function getDesignImageUrl(designNo: string) {
     return await fetchApi<string[]>(DesignImageUrl(designNo), {
       method: 'GET'
     });
-  } catch(error){
+  } catch (error) {
     showSnackbar("Unexpected error while fetching design images. Please try again later", 'danger');
   }
-} 
+}
 
 </script>

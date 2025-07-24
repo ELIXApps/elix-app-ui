@@ -93,7 +93,7 @@
 
         <v-row dense class="mt-0" justify="end">
             <v-col cols="auto">
-                <v-btn density="compact" variant="outlined" size="x-large" type="submit">
+                <v-btn density="compact" variant="tonal" color="#4CAF50" size="x-large" type="submit">
                     Submit
                 </v-btn>
             </v-col>

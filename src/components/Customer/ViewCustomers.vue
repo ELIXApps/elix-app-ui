@@ -2,13 +2,13 @@
   <!-- Search Box -->
   <v-row dense>
     <v-col cols="3">
-      <v-text-field density="compact" variant="outlined" v-model="searchQuery" label="Search by name or company or mobile"
-        prepend-inner-icon="mdi-magnify" clearable />
+      <v-text-field density="compact" variant="outlined" v-model="searchQuery"
+        label="Search by name or company or mobile" prepend-inner-icon="mdi-magnify" clearable />
     </v-col>
   </v-row>
   <v-row dense>
     <!-- Data Table -->
-    <v-data-table density="compact" :headers="headers" :items="filteredItems" class="elevation-1">
+    <v-data-table density="compact" :headers="headers" :items="filteredItems">
       <template v-slot:item.actions="{ item }">
         <v-btn density="compact" variant="text" icon @click="edit(item)">
           <v-icon>mdi-pencil</v-icon>
@@ -18,7 +18,7 @@
 
     <!-- Dialog with ManageCustomer -->
     <v-dialog v-model="dialog" transition="dialog-bottom-transition" max-width="65%" max-height="100%">
-      <v-card prepend-icon="mdi-account" title="Customer Profile" rounded>
+      <v-card flat prepend-icon="mdi-account" title="Customer Profile" rounded>
         <template #append>
           <v-btn icon="mdi-close" variant="text" @click="dialog = false" />
         </template>

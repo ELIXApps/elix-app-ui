@@ -1,10 +1,9 @@
 <template>
   <Snackbar />
   <Loader />
-  <v-app-bar title="ELIX"></v-app-bar>
   <SideBar />
   <v-main>
-      <router-view />
+    <router-view />
   </v-main>
 </template>
 
