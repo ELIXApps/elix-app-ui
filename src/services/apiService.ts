@@ -2,12 +2,12 @@ import { ActionType, DataSourceObjects, IApiRequest, IApiResponse } from "@/mode
 import { fetchApi } from "./fetchHelper";
 import { ServiceAPIUrl } from "./apiUrls";
 
-async function apiGet<TRequest>(
+async function apiGet<TResponse>(
   dataSourceObject: DataSourceObjects,
-  data: TRequest
-): Promise<IApiResponse> {
+  data: any
+): Promise<TResponse> {
   try {
-    return await fetchApi<IApiResponse, IApiRequest>(
+    var response = await fetchApi<IApiResponse<TResponse>, IApiRequest>(
       ServiceAPIUrl,
       {
         method: 'POST',
@@ -18,17 +18,18 @@ async function apiGet<TRequest>(
         },
       }
     );
+    return response.value
   } catch (error) {
     console.error(`apiGet error:`, error);    
   }
 }
 
-async function apiGetAll<TRequest>(
+async function apiGetAll<TResponse>(
   dataSourceObject: DataSourceObjects,
-  data?: TRequest
-): Promise<IApiResponse> {
+  data?: any
+): Promise<TResponse> {
   try {
-    return await fetchApi<IApiResponse, IApiRequest>(
+    var response = await fetchApi<IApiResponse<TResponse>, IApiRequest>(
       ServiceAPIUrl,
       {
         method: 'POST',
@@ -39,17 +40,18 @@ async function apiGetAll<TRequest>(
         },
       }
     );
+    return response.value;
   } catch (error) {
     console.error(`apiGetAll error:`, error);    
   }
 }
 
-async function apiCreate<TRequest>(
+async function apiCreate(
   dataSourceObject: DataSourceObjects,
-  data?: TRequest
-): Promise<IApiResponse> {
+  data?: any
+): Promise<IApiResponse<any>> {
   try {
-    return await fetchApi<IApiResponse, IApiRequest>(
+    return await fetchApi<IApiResponse<any>, IApiRequest>(
       ServiceAPIUrl,
       {
         method: 'POST',
@@ -65,12 +67,12 @@ async function apiCreate<TRequest>(
   }
 }
 
-async function apiUpdate<TRequest>(
+async function apiUpdate(
   dataSourceObject: DataSourceObjects,
-  data?: TRequest
-): Promise<IApiResponse> {
+  data?: any
+): Promise<IApiResponse<any>> {
   try {
-    return await fetchApi<IApiResponse, IApiRequest>(
+    return await fetchApi<IApiResponse<any>, IApiRequest>(
       ServiceAPIUrl,
       {
         method: 'POST',
