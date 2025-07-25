@@ -136,10 +136,22 @@
     <v-card flat>
         <v-card-title>
             <v-text-field hide-details density="compact" width="25%" variant="outlined" v-model="searchQuery"
-                label="Search by Booking ID, Design ID etc" prepend-inner-icon="mdi-magnify" clearable />
+                label="Search by Order ID, Design No. etc" prepend-inner-icon="mdi-magnify" clearable />
         </v-card-title>
-        <v-data-table density="compact" :headers="tableHeaders" :items="tableItems" :items-per-page="5"
-            :items-per-page-options="[5, 10, 25, 50]" class="elevation-1" />
+        <v-data-table density="compact" :headers="tableHeaders" :items="filteredItems" :items-per-page="5"
+            :items-per-page-options="[5, 10, 25, 50]" class="elevation-1">
+            <template v-slot:item.actions="{ item }">
+                <v-btn density="compact" variant="text" icon @click="edit(item)">
+                    <v-icon>mdi-pencil</v-icon>
+                </v-btn>
+            </template>
+            <template v-slot:item.orderDate="{ item }">
+                {{ new Date(item.orderDate).toDateString() }}
+            </template>
+            <template v-slot:item.dueDate="{ item }">
+                {{ new Date(item.dueDate).toDateString() }}
+            </template>
+        </v-data-table>
     </v-card>
 </template>
 
@@ -173,13 +185,43 @@ onMounted(() => {
             allDesigns.value = resp
         })
 
-    apiGetAll<IOrder[]>(DataSourceObjects.order)
+   loadAllOrders();
+});
+
+function loadAllOrders() {
+ apiGetAll<IOrder[]>(DataSourceObjects.order)
         .then(resp => {
             allOrders.value = resp;
             console.log(resp)
         })
-});
+}
 
+
+// Table
+const tableHeaders = [
+    { title: 'Order Id', key: 'orderId', sortable: true },
+    { title: 'Design No', key: 'designNo', sortable: true },
+    { title: 'Order Type', key: 'orderType', sortable: true },
+    { title: 'Customer', key: 'customer', sortable: true },
+    { title: 'Order Date', key: 'orderDate', sortable: true },
+    { title: 'Due Date', key: 'dueDate', sortable: true },
+    { title: 'Actions', value: 'actions', sortable: false },
+]
+
+const filteredItems = computed(() => {
+    const query = searchQuery.value.trim().toLowerCase()
+    if (!query) return allOrders.value;
+
+    return allOrders.value.filter(
+        i =>
+            i.designNo.toLowerCase().includes(query) ||
+            i.orderId.toLowerCase().includes(query) ||
+            i.orderDate.toLowerCase().includes(query) ||
+            i.dueDate.toLowerCase().includes(query) ||
+            i.orderType.toLowerCase().includes(query) ||
+            i.customer.toLowerCase().includes(query)
+    )
+});
 
 const schema = object({
     orderType: string().required('Order Type is required'),
@@ -227,11 +269,15 @@ const selectedProductOption = computed(() => {
 
 const imagePreviews = ref<string[]>([])
 
-async function onDesginNoSelect() {
+function onDesginNoSelect() {
     setValues({
         ...values,
         ...selectedDesign.value
     });
+    setImagePreviews();
+}
+
+function setImagePreviews() {
     getDesignImageUrl(designNo.value).then(resp => imagePreviews.value = resp);
 }
 
@@ -245,23 +291,6 @@ async function getDesignImageUrl(designNo: string) {
     }
 }
 
-// Table
-const tableHeaders = [
-    { title: 'Order Booking ID', key: 'id' },
-    { title: 'Order Date', key: 'orderDate' },
-    { title: 'Due Date', key: 'dueDate' },
-    { title: 'Design ID', key: 'designId' },
-]
-const tableItems = [
-    { id: 'OB001', orderDate: '2024-01-01', dueDate: '2024-01-15', designId: 'D1001' },
-    { id: 'OB002', orderDate: '2024-01-02', dueDate: '2024-01-16', designId: 'D1002' },
-    { id: 'OB002', orderDate: '2024-01-02', dueDate: '2024-01-16', designId: 'D1002' },
-    { id: 'OB002', orderDate: '2024-01-02', dueDate: '2024-01-16', designId: 'D1002' },
-    { id: 'OB002', orderDate: '2024-01-02', dueDate: '2024-01-16', designId: 'D1002' },
-    { id: 'OB002', orderDate: '2024-01-02', dueDate: '2024-01-16', designId: 'D1002' },
-    { id: 'OB002', orderDate: '2024-01-02', dueDate: '2024-01-16', designId: 'D1002' },
-    { id: 'OB002', orderDate: '2024-01-02', dueDate: '2024-01-16', designId: 'D1002' },
-]
 
 const submitForm = handleSubmit(async values => {
     console.log('Form Submitted:', values)
@@ -272,8 +301,14 @@ const submitForm = handleSubmit(async values => {
         hideLoader();
         return;
     }
+    loadAllOrders();
     hideLoader();
     showSnackbar("Order saved successfully");
 })
+
+function edit(item: IOrder) {
+    setValues(item);
+    setImagePreviews();
+}
 
 </script>
