@@ -92,7 +92,7 @@
             </v-responsive>
           </v-col>
           <v-col cols="auto" class="d-flex flex-column justify-end">
-            <v-btn density="compact" variant="tonal" color="#4CAF50" size="x-large" type="submit">
+            <v-btn density="compact" variant="tonal" color="success" size="x-large" type="submit">
               Submit
             </v-btn>
           </v-col>
@@ -129,6 +129,7 @@ import { fetchApi } from '@/services/fetchHelper';
 import { DesignImageUploadUrl, DesignImageUrl } from '@/services/apiUrls';
 import { useSnackbar } from '@/composables/useSnackbar';
 import { DefaultErrorMsg } from '@/services/constants';
+import { IDesign } from '@/models/design';
 
 const { showLoader, hideLoader } = useLoader();
 const { showSnackbar } = useSnackbar();
@@ -136,7 +137,7 @@ const { showSnackbar } = useSnackbar();
 // Search input
 const searchQuery = ref('')
 
-const { handleSubmit, resetForm } = useForm({
+const { handleSubmit, resetForm } = useForm<IDesign>({
   validationSchema: {
     designNo: v => (!!v && v.length >= 1) || 'Design No. is required',
     productData: v => (!!v) || 'Product is required',
@@ -152,7 +153,6 @@ const { handleSubmit, resetForm } = useForm({
   },
 });
 
-
 // Table headers
 const headers = [
   { title: 'Design No.', value: 'designNo', sortable: true },
@@ -167,7 +167,9 @@ const headers = [
   { title: 'Color Stone Weight', value: 'colorStoneWeight', sortable: true },
   { title: 'Actions', value: 'actions', sortable: false },
 ]
+
 interface IDesignTableItem { designId: string; designNo: string; product: string; specification: string; unit: string; specValue: string; goldCarat: string; goldColor: string; goldWeight: string; diamondWeight: string, colorStoneWeight: string }
+
 const items = ref<
   IDesignTableItem[]
 >([]);
@@ -204,8 +206,8 @@ onMounted(() => {
 
 function loadAllDesigns() {
   showLoader()
-  apiGetAll(DataSourceObjects.design).then(resp => {
-    items.value = (resp.value as any[]).map(x => ({
+  apiGetAll<IDesign[]>(DataSourceObjects.design).then(resp => {
+    items.value = resp.map(x => ({
       designId: x.designId,
       colorStoneWeight: x.colorStoneWeight,
       designNo: x.designNo,
@@ -219,7 +221,7 @@ function loadAllDesigns() {
       unit: x.productData.unit
     }))
   })
-    .finally(() => hideLoader())
+    .finally(hideLoader)
 }
 
 function onFileChange(event: Event) {
