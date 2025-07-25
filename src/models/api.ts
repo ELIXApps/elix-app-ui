@@ -4,9 +4,9 @@ interface IApiRequest {
     data: any
 }
 
-interface IApiResponse {
+interface IApiResponse<TValue> {
     status: string,
-    value: any,
+    value: TValue,
     message?: string
 }
 
@@ -19,7 +19,8 @@ export enum ActionType {
 
 export enum DataSourceObjects {
     customer = "customer",
-    design = "design"
+    design = "design",
+    order = "order"
 }
 
 export type {

@@ -2,7 +2,7 @@
   <v-progress-linear
     v-if="loading"
     indeterminate
-    color="primary"
+    color="blue"
     height="2"
     position="fixed"
     top
