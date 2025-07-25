@@ -3,7 +3,7 @@ import { IDesign } from "./design";
 enum OrderType {
     Customer = "Customer",
     Stock = "Stock",
-    Rework = "Reword"
+    Rework = "Rework"
 }
 
 interface IOrder extends IDesign {

@@ -106,10 +106,10 @@
 
                 <v-row dense>
                     <v-col cols="6">
-                        <v-textarea v-model="specialRemarks" hide-details density="compact" persistent-clear rows="4"
+                        <v-textarea v-model="specialRemarks" hide-details density="compact" persistent-clear rows="5"
                             clearable label="Special Remarks" variant="outlined"></v-textarea>
                     </v-col>
-                    <v-col cols="4">
+                    <v-col cols="3">
                         <div class="text-caption text-medium-emphasis pb-2">Design Images</div>
                         <div class="d-flex">
                             <template v-if="imagePreviews?.length">
@@ -122,11 +122,17 @@
                                 {{ designNo ? 'No images uploaded' : 'Please select a Desgin' }}</div>
                         </div>
                     </v-col>
-                    <v-col cols="2" class="d-flex flex-column justify-end">
-                        <v-btn density="compact" variant="tonal" color="#4CAF50" size="x-large" type="submit">
+                    <v-col cols="3" class="d-flex justify-end align-end">
+                        <v-btn class="me-2" density="compact" variant="tonal" color="success" size="x-large"
+                            type="submit">
                             Submit
                         </v-btn>
+                        <v-btn density="compact" variant="tonal" color="danger" :onclick="resetOrderForm"
+                            size="x-large">
+                            {{ values.orderId ? 'Cancel' : 'Clear' }}
+                        </v-btn>
                     </v-col>
+
                 </v-row>
             </form>
         </v-card-item>
@@ -185,11 +191,11 @@ onMounted(() => {
             allDesigns.value = resp
         })
 
-   loadAllOrders();
+    loadAllOrders();
 });
 
 function loadAllOrders() {
- apiGetAll<IOrder[]>(DataSourceObjects.order)
+    apiGetAll<IOrder[]>(DataSourceObjects.order)
         .then(resp => {
             allOrders.value = resp;
             console.log(resp)
@@ -237,10 +243,30 @@ const schema = object({
     specialRemarks: string().nullable(),
     specValue: string().required()
 })
+
+const initialValues: IOrder = {
+    orderType: null,
+    customer: '',
+    orderDate: null,
+    dueDate: null,
+    designNo: '',
+    productData: null,
+    goldCarat: '',
+    goldColor: '',
+    goldWeight: '',
+    diamondWeight: '',
+    colorStoneWeight: '',
+    specialRemarks: '',
+    specValue: '',
+    designId: '',
+    orderId: '',
+};
+
 // Form validation
-const { handleSubmit, defineField, errors, setValues, values } = useForm<IOrder>({
+const { handleSubmit, defineField, errors, setValues, values, resetForm } = useForm<IOrder>({
     validationSchema: schema,
-    validateOnMount: false
+    validateOnMount: false,
+    initialValues: { ...initialValues }
 });
 
 const [orderType] = defineField('orderType')
@@ -260,25 +286,33 @@ const [specialRemarks] = defineField('specialRemarks')
 const orderDateMenu = ref(false)
 const dueDateMenu = ref(false)
 
-const selectedDesign = computed(() => {
-    return allDesigns.value.find(d => d.designNo == designNo.value);
-})
 const selectedProductOption = computed(() => {
     return productOptions.find(p => p.product == product.value);
 })
 
 const imagePreviews = ref<string[]>([])
 
+const designImageMap = new Map<string, string[]>();
 function onDesginNoSelect() {
-    setValues({
-        ...values,
-        ...selectedDesign.value
-    });
+    resetForm({
+        values:
+        {
+            ...values,
+            ...allDesigns.value.find(d => d.designNo == values.designNo)
+        },
+    })
     setImagePreviews();
 }
 
 function setImagePreviews() {
-    getDesignImageUrl(designNo.value).then(resp => imagePreviews.value = resp);
+    let imageUrls = designImageMap.get(designNo.value);
+    if (imageUrls?.length)
+        imagePreviews.value = imageUrls;
+    else
+        getDesignImageUrl(designNo.value).then(resp => {
+            imagePreviews.value = resp;
+            designImageMap.set(designNo.value, resp);
+        });
 }
 
 async function getDesignImageUrl(designNo: string) {
@@ -301,10 +335,17 @@ const submitForm = handleSubmit(async values => {
         hideLoader();
         return;
     }
+    resetOrderForm();
     loadAllOrders();
     hideLoader();
     showSnackbar("Order saved successfully");
 })
+
+function resetOrderForm() {
+    resetForm({ values: { ...initialValues } });
+    imagePreviews.value = [];
+}
+
 
 function edit(item: IOrder) {
     setValues(item);

@@ -92,7 +92,7 @@
             </v-responsive>
           </v-col>
           <v-col cols="auto" class="d-flex flex-column justify-end">
-            <v-btn density="compact" variant="tonal" color="#4CAF50" size="x-large" type="submit">
+            <v-btn density="compact" variant="tonal" color="success" size="x-large" type="submit">
               Submit
             </v-btn>
           </v-col>
