@@ -159,13 +159,14 @@ import { goldColors, productOptions, purityOptions } from '@/models/product'
 import { IOrder, OrderType } from '@/models/order'
 import { object, string, date } from 'yup'
 import { IDesign } from '@/models/design'
-import { apiCreate, apiGetAll, apiUpdate } from '@/services/apiService'
+import { apiCreate, apiGetAll, apiUpdate } from '@/services/api'
 import { DataSourceObjects } from '@/models/api'
 import { fetchApi } from '@/services/fetchHelper'
 import { DesignImageUrl } from '@/services/apiUrls'
 import { useSnackbar } from '@/composables/useSnackbar'
 import { useLoader } from '@/composables/useLoader'
 import { DefaultErrorMsg } from '@/services/constants'
+import { getImages } from '@/services/design'
 
 const { showSnackbar } = useSnackbar();
 const { showLoader, hideLoader } = useLoader()
@@ -304,22 +305,11 @@ function setImagePreviews() {
     if (imageUrls?.length)
         imagePreviews.value = imageUrls;
     else
-        getDesignImageUrl(designNo.value).then(resp => {
+        getImages(designNo.value).then(resp => {
             imagePreviews.value = resp;
             designImageMap.set(designNo.value, resp);
         });
 }
-
-async function getDesignImageUrl(designNo: string) {
-    try {
-        return await fetchApi<string[]>(DesignImageUrl(designNo), {
-            method: 'GET'
-        });
-    } catch (error) {
-        showSnackbar("Unexpected error while fetching design images. Please try again later", 'danger');
-    }
-}
-
 
 const submitForm = handleSubmit(async values => {
     console.log('Form Submitted:', values)

@@ -105,7 +105,7 @@
 <script setup lang="ts">
 import { useField, useForm } from 'vee-validate';
 import { DefaultErrorMsg } from '@/services/constants';
-import { apiCreate, apiUpdate } from '@/services/apiService';
+import { apiCreate, apiUpdate } from '@/services/api';
 import { DataSourceObjects } from '@/models/api';
 import { useSnackbar } from '@/composables/useSnackbar';
 import { useLoader } from '@/composables/useLoader';

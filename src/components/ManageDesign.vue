@@ -63,15 +63,15 @@
               <label class="d-flex mb-4" style="cursor: pointer">
                 <v-icon class="mr-2">mdi-paperclip</v-icon>
                 <input type="file" accept="image/*" multiple hidden @change="onFileChange"
-                  :disabled="imageFiles.length >= 3" />
+                  :disabled="designImages.length >= 3" />
                 <span>Attach Images (max 3)</span>
               </label>
             </v-row>
             <v-row>
               <v-col cols="8" class="d-flex">
-                <v-responsive max-width="200" max-height="200" class="mr-2" v-for="(preview, index) in imagePreviews"
+                <v-responsive max-width="200" max-height="200" class="mr-2" v-for="(image, index) in designImages"
                   :key="index">
-                  <v-img :src="preview" cover />
+                  <v-img :src="image.preview" cover />
                   <v-btn icon variant="flat" class="ma-2" size="x-small"
                     style="position: absolute; top: 0; right: 0; z-index: 1; background-color: rgba(0,0,0,0.6)"
                     @click="removeImage(index)">
@@ -119,14 +119,14 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useForm } from 'vee-validate'
 import { goldColors, productOptions, purityOptions } from '@/models/product';
 import { useLoader } from '@/composables/useLoader';
-import { apiCreate, apiGetAll, apiUpdate } from '@/services/apiService';
+import { apiCreate, apiGetAll, apiUpdate } from '@/services/api';
 import { DataSourceObjects } from '@/models/api';
 import { fetchApi } from '@/services/fetchHelper';
-import { DesignImageUploadUrl, DesignImageUrl } from '@/services/apiUrls';
 import { useSnackbar } from '@/composables/useSnackbar';
 import { DefaultErrorMsg } from '@/services/constants';
 import { IDesign } from '@/models/design';
 import { object, string } from 'yup';
+import { getImages, uploadImages } from '@/services/design';
 
 const { showLoader, hideLoader } = useLoader();
 const { showSnackbar } = useSnackbar();
@@ -238,8 +238,12 @@ const [diamondWeight] = defineField('diamondWeight');
 const [colorStoneWeight] = defineField('colorStoneWeight');
 const [productData] = defineField('productData');
 const [specValue] = defineField('specValue');
-const imageFiles = ref<File[]>([]);
-const imagePreviews = ref<string[]>([]);
+const designImages = ref<{
+  file?: File,
+  preview?: string,
+  fileName: string
+}[]>([]);
+// const imagePreviews = ref<string[]>([]);
 const designImageMap = new Map<string, string[]>();
 
 
@@ -251,57 +255,30 @@ function loadAllDesigns() {
     .finally(hideLoader)
 }
 
-function onFileChange(event: Event) {
-  const files = Array.from(
-    (event.target as HTMLInputElement)?.files ?? []
-  );
+async function onFileChange(event: Event) {
+  const input = event.target as HTMLInputElement;
+  const selectedFiles = Array.from(input?.files ?? []);
+  const processedFiles: { file: File; filePreview: string; fileName: string }[] = [];
 
-  combineImageAndGeneratePreviews(files);
+  for (const file of selectedFiles) {
+    const filePreview = await file.toDataUrl();
+    processedFiles.push({
+      file,
+      filePreview,
+      fileName: file.name,
+    });
+  }
 
-  // Reset input value so selecting the same file again triggers change
-  (event.target as HTMLInputElement).value = "";
-}
+  designImages.value = [...designImages.value, ...processedFiles].slice(0, 3);
 
-function combineImageAndGeneratePreviews(files: File[]) {
-  // Combine existing files with new ones, max 3
-  const combined = [...imageFiles.value, ...files].slice(0, 3);
-
-  imageFiles.value = combined;
-  imagePreviews.value = [];
-
-  // Generate previews
-  combined.forEach(file => {
-    const reader = new FileReader();
-    reader.onload = e => {
-      imagePreviews.value.push(e.target?.result as string);
-    };
-    reader.readAsDataURL(file);
-  });
+  // Clear input so selecting the same file again triggers the change event
+  input.value = "";
 }
 
 
 function removeImage(index: number) {
-  imageFiles.value.splice(index, 1);
-  imagePreviews.value.splice(index, 1);
-}
-
-async function filesFromUrls(urls: string[]): Promise<File[]> {
-  const files = await Promise.all(
-    urls.map(async (url, index) => {
-      const response = await fetch(url);
-      const blob = await response.blob();
-
-      // Try to extract filename from URL or fallback
-      const urlObj = new URL(url);
-      const pathname = urlObj.pathname;
-      const originalName = pathname.substring(pathname.lastIndexOf('/') + 1).split('?')[0];
-      const filename = originalName || `image_${index}.jpg`;
-
-      return new File([blob], filename, { type: blob.type || 'image/jpeg' });
-    })
-  );
-
-  return files;
+  // imageFiles.value.splice(index, 1);
+  // imagePreviews.value.splice(index, 1);
 }
 
 const submit = handleSubmit(async values => {
@@ -313,15 +290,12 @@ const submit = handleSubmit(async values => {
     return;
   }
 
-  if (imageFiles.value.length) {
+  if (designImages.value?.length) {
     var formData = new FormData();
-    imageFiles.value.forEach(file => {
-      formData.append(file.name, file);
+    designImages.value.forEach(x => {
+      formData.append(x.fileName, x.file);
     });
-    fetchApi(DesignImageUploadUrl(values.designNo), {
-      method: 'POST',
-      body: formData
-    });
+    uploadImages(values.designNo, formData);
   }
   showSnackbar("Design saved successfully");
   resetDesignForm(values.designNo);
@@ -331,8 +305,7 @@ const submit = handleSubmit(async values => {
 
 function resetDesignForm(designNo: string) {
   resetForm({ values: { ...initialValues } });
-  imageFiles.value = [];
-  imagePreviews.value = [];
+  designImages.value = [];
   designImageMap.delete(designNo);
 }
 
@@ -374,23 +347,16 @@ async function edit(item: IDesign) {
   setValues(item);
   var imageUrls = designImageMap.get(item.designNo);
   if (!imageUrls?.length) {
-    imageUrls = await getDesignImageUrl(item.designNo);
+    imageUrls = await getImages(item.designNo);
     designImageMap.set(item.designNo, imageUrls);
   }
   if (imageUrls?.length) {
-    const imageFiles = await filesFromUrls(imageUrls);
-    combineImageAndGeneratePreviews(imageFiles);
+    designImages.value = imageUrls.map(x => ({
+      preview: x,
+      fileName: x
+    }))
   }
 }
 
-async function getDesignImageUrl(designNo: string) {
-  try {
-    return await fetchApi<string[]>(DesignImageUrl(designNo), {
-      method: 'GET'
-    });
-  } catch (error) {
-    showSnackbar("Unexpected error while fetching design images. Please try again later", 'danger');
-  }
-}
 
 </script>
