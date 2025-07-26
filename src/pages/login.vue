@@ -72,12 +72,12 @@ async function handleLogin() {
       }
     );
 
-    if (response?.statusCode != 200) {
+    if (response?.status != "ok") {
       let respBody = JSON.parse(response.body);
       errorMessage.value = respBody.message || DefaultErrorMsg;
     } else {
-      let respBody = JSON.parse(response.body);
-      localStorage.setItem(AccessTokenKey, respBody.token)
+      localStorage.setItem(AccessTokenKey, response?.token)
+      localStorage.setItem('userDetails', JSON.stringify(response?.userDetails || {}));
 
       // Navigate to home
       router.push('/')
