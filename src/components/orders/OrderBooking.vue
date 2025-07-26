@@ -1,7 +1,7 @@
 <template>
     <!-- TOP PART: FORM -->
     <v-card flat class="mb-3 order-booking-form">
-        <v-card-item>
+        <v-card-item class="pa-0">
             <form @submit.prevent="submitForm">
                 <v-row class="mb-2">
                     <v-col cols="9">
@@ -55,33 +55,17 @@
                                     variant="outlined" @update:model-value="onDesginNoSelect" />
                             </v-col>
                             <v-col cols="3">
-                                <v-select v-model="product" :error-messages="''" :items="productOptions" label="product"
+                                <v-select v-model="productData.product" :items="productOptions" label="product"
                                     density="compact" readonly variant="outlined" />
                             </v-col>
-                            <v-col cols="3" class="d-flex justify-space-between">
-
-                                <!-- Specification Name -->
-                                <div class="d-flex flex-column">
-                                    <div class="text-caption text-medium-emphasis">Specification</div>
-                                    <div class="text-body-1">{{ selectedProductOption?.specification }}</div>
-                                </div>
-                                <!-- Specification Value -->
-                                <div style="width: 60%;">
-                                    <v-select v-if="selectedProductOption?.hasMultipleSpecValues" v-model="specValue"
-                                        :error-messages="errors.specValue"
-                                        :items="selectedProductOption?.specificationOptions" label="Spec Value"
-                                        density="compact" variant="outlined" />
+                             <v-col cols="3">
+                                    <v-select v-if="productData?.hasMultipleSpecValues" v-model="specValue"
+                                        :error-messages="errors.specValue" :items="productData?.specificationOptions"
+                                        :label="productData?.specification || 'Specification'" density="compact" variant="outlined" :suffix="productData?.unit" />
                                     <v-text-field v-else v-model="specValue" :error-messages="errors.specValue"
-                                        label="Spec Value" type="number" density="compact" variant="outlined" />
-                                </div>
-
-                                <!-- Unit -->
-                                <div class="d-flex flex-column">
-                                    <div class="text-caption text-medium-emphasis">Unit</div>
-                                    <div class="text-body-1">{{ selectedProductOption?.unit }}</div>
-                                </div>
-
+                                        :label="productData?.specification || 'Specification'" type="number" density="compact" variant="outlined" :suffix="productData?.unit" />
                             </v-col>
+                            
                             <v-col cols="3">
                                 <v-select v-model="goldCarat" :error-messages="errors.goldCarat" :items="purityOptions"
                                     label="Gold Carat" density="compact" variant="outlined" />
@@ -112,7 +96,7 @@
                         <v-row dense>
                             <v-col cols="6">
                                 <v-textarea v-model="specialRemarks" hide-details density="compact" persistent-clear
-                                    rows="5" clearable label="Special Remarks" variant="outlined"></v-textarea>
+                                    rows="3" clearable label="Special Remarks" variant="outlined"></v-textarea>
                             </v-col>
                         </v-row>
                     </v-col>
@@ -132,13 +116,12 @@
                 </v-row>
                 <v-row dense>
                     <v-col cols="12" class="d-flex justify-end align-end">
-                        <v-btn class="me-2" density="compact" variant="tonal" color="success" size="x-large"
-                            type="submit">
-                            Submit
-                        </v-btn>
-                        <v-btn density="compact" variant="tonal" color="danger" :onclick="resetOrderForm"
+                        <v-btn class="me-2" density="compact" variant="tonal" color="danger" :onclick="resetOrderForm"
                             size="x-large">
                             {{ values.orderId ? 'Cancel' : 'Clear' }}
+                        </v-btn>
+                        <v-btn density="compact" variant="tonal" color="success" size="x-large" type="submit">
+                            Submit
                         </v-btn>
                     </v-col>
                 </v-row>
@@ -148,7 +131,7 @@
 
     <!-- BOTTOM PART: DATATABLE -->
     <v-card flat>
-        <v-card-title>
+        <v-card-title class="pa-0 pb-3">
             <v-text-field hide-details density="compact" width="25%" variant="outlined" v-model="searchQuery"
                 label="Search by Order ID, Design No. etc" prepend-inner-icon="mdi-magnify" clearable />
         </v-card-title>
@@ -203,11 +186,11 @@ onMounted(() => {
 });
 
 function loadAllOrders() {
+    showLoader();
     apiGetAll<IOrder[]>(DataSourceObjects.order)
         .then(resp => {
             allOrders.value = resp;
-            console.log(resp)
-        })
+        }).finally(hideLoader);
 }
 
 
@@ -258,7 +241,11 @@ const initialValues: IOrder = {
     orderDate: null,
     dueDate: null,
     designNo: null,
-    productData: null,
+    productData: {
+        product: null,
+        specification: '',
+        unit: ''
+    },
     goldCarat: null,
     goldColor: null,
     goldWeight: '',
@@ -283,7 +270,7 @@ const [specValue] = defineField('specValue')
 const [orderDate] = defineField('orderDate')
 const [dueDate] = defineField('dueDate')
 const [designNo] = defineField('designNo')
-const [product] = defineField('productData.product')
+const [productData] = defineField('productData')
 const [goldCarat] = defineField('goldCarat')
 const [goldColor] = defineField('goldColor')
 const [goldWeight] = defineField('goldWeight')
@@ -294,9 +281,9 @@ const [specialRemarks] = defineField('specialRemarks')
 const orderDateMenu = ref(false)
 const dueDateMenu = ref(false)
 
-const selectedProductOption = computed(() => {
-    return productOptions.find(p => p.product == product.value);
-})
+// const selectedProductOption = computed(() => {
+//     return productOptions.find(p => p.product == product.value);
+// })
 
 const imagePreviews = ref<string[]>([])
 

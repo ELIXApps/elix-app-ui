@@ -1,81 +1,66 @@
 <template>
+
   <v-card flat class="mb-3">
-    <v-card-item>
+    <v-card-item class="pa-0">
       <form @submit.prevent="submit">
         <v-row>
-          <v-col cols="7">
+          <v-col cols="8">
             <v-row class="pt-2">
               <v-col cols="4">
-                <v-text-field v-model="designNo.value.value" :error-messages="designNo.errorMessage.value"
-                  label="Design No." density="compact" variant="outlined" />
+                <v-text-field v-model="designNo" :error-messages="errors.designNo" label="Design No." density="compact"
+                  variant="outlined" />
               </v-col>
               <v-col cols="4">
-                <v-select v-model="productData.value.value" :items="productOptions" label="Product" density="compact"
-                  variant="outlined" item-title="product" return-object
-                  :error-messages="productData.errorMessage.value" />
+                <v-select v-model="productData" :items="productOptions" label="Product" density="compact"
+                  variant="outlined" item-title="product" return-object :error-messages="errors.productData" />
               </v-col>
-              <v-col cols="4" class="d-flex justify-space-between">
-                <template v-if="productData.value.value">
-                  <!-- Specification Name -->
-                  <div class="d-flex flex-column">
-                    <div class="text-caption text-medium-emphasis">Specification</div>
-                    <div class="text-body-1">{{ productData.value.value.specification }}</div>
-                  </div>
-                  <!-- Specification Value -->
-                  <div style="width: 60%;">
-                    <v-select v-if="productData.value.value.hasMultipleSpecValues" v-model="specValue.value.value"
-                      :items="productData.value.value.specificationOptions" label="Spec Value" density="compact"
-                      variant="outlined" :error-messages="specValue.errorMessage.value" />
-                    <v-text-field v-else v-model="specValue.value.value" label="Spec Value" type="number"
-                      density="compact" variant="outlined" :error-messages="specValue.errorMessage.value" />
-                  </div>
-
-                  <!-- Unit -->
-                  <div class="d-flex flex-column">
-                    <div class="text-caption text-medium-emphasis">Unit</div>
-                    <div class="text-body-1">{{ productData.value.value.unit }}</div>
-                  </div>
-
+              <v-col cols="4">
+                <template v-if="productData">
+                  <v-select v-if="productData?.hasMultipleSpecValues" v-model="specValue"
+                    :error-messages="errors.specValue" :items="productData?.specificationOptions"
+                    :label="productData?.specification || 'Specification'" density="compact" variant="outlined"
+                    :suffix="productData?.unit" />
+                  <v-text-field v-else v-model="specValue" :error-messages="errors.specValue"
+                    :label="productData?.specification || 'Specification'" type="number" density="compact"
+                    variant="outlined" :suffix="productData?.unit" />
                 </template>
                 <div v-else class="text-medium-emphasis mt-3">Select product to show specifications</div>
               </v-col>
             </v-row>
             <v-row>
               <v-col cols="4">
-                <v-select v-model="goldCarat.value.value" :items="purityOptions"
-                  :error-messages="goldCarat.errorMessage.value" label="Gold Carat" density="compact" variant="outlined"
-                  item-title="gold carat" />
+                <v-select v-model="goldCarat" :items="purityOptions" :error-messages="errors.goldCarat"
+                  label="Gold Carat" density="compact" variant="outlined" item-title="gold carat" />
               </v-col>
               <v-col cols="4">
-                <v-select v-model="goldColor.value.value" :error-messages="goldColor.errorMessage.value"
-                  :items="goldColors" label="Gold Color" density="compact" variant="outlined" item-title="gold color" />
+                <v-select v-model="goldColor" :error-messages="errors.goldColor" :items="goldColors" label="Gold Color"
+                  density="compact" variant="outlined" item-title="gold color" />
               </v-col>
 
               <v-col cols="4">
-                <v-text-field v-model="goldWeight.value.value" :error-messages="goldWeight.errorMessage.value"
-                  label="Gold Weight in Gms" density="compact" variant="outlined" type="text"
-                  @blur="formatDecimal(goldWeight)" @input="limitDecimals($event, goldWeight)" />
+                <v-text-field v-model="goldWeight" :error-messages="errors.goldWeight" label="Gold Weight in Gms"
+                  density="compact" variant="outlined" type="text" @blur="formatDecimal(goldWeight)"
+                  @input="limitDecimals($event, goldWeight)" />
               </v-col>
             </v-row>
             <v-row>
               <v-col cols="4">
-                <v-text-field v-model="diamondWeight.value.value" :error-messages="diamondWeight.errorMessage.value"
+                <v-text-field v-model="diamondWeight" :error-messages="errors.diamondWeight"
                   label="Diamond Weight in Cts" density="compact" variant="outlined" type="text"
                   @blur="formatDecimal(diamondWeight)" @input="limitDecimals($event, diamondWeight)" />
               </v-col>
 
               <v-col cols="4">
-                <v-text-field v-model="colorStoneWeight.value.value"
-                  :error-messages="colorStoneWeight.errorMessage.value" label="Color Stone Weight in Cts"
-                  density="compact" variant="outlined" type="text" @blur="formatDecimal(colorStoneWeight)"
-                  @input="limitDecimals($event, colorStoneWeight)" />
+                <v-text-field v-model="colorStoneWeight" :error-messages="errors.colorStoneWeight"
+                  label="Color Stone Weight in Cts" density="compact" variant="outlined" type="text"
+                  @blur="formatDecimal(colorStoneWeight)" @input="limitDecimals($event, colorStoneWeight)" />
               </v-col>
             </v-row>
           </v-col>
-          <v-col cols="5">
+          <v-col cols="4">
             <!-- Image Upload -->
             <v-row class="pt-4">
-              <label class="d-flex align-center mb-4" style="cursor: pointer">
+              <label class="d-flex mb-4" style="cursor: pointer">
                 <v-icon class="mr-2">mdi-paperclip</v-icon>
                 <input type="file" accept="image/*" multiple hidden @change="onFileChange"
                   :disabled="imageFiles.length >= 3" />
@@ -99,7 +84,11 @@
         </v-row>
 
         <v-row dense class="d-flex justify-end pb-2">
-          <v-col cols="auto" class="d-flex flex-column justify-end">
+          <v-col cols="auto" class="d-flex justify-end align-end">
+            <v-btn class="me-2" density="compact" variant="tonal" color="danger" :onclick="resetDesignForm"
+              size="x-large">
+              {{ values.designId ? 'Cancel' : 'Clear' }}
+            </v-btn>
             <v-btn density="compact" variant="tonal" color="success" size="x-large" type="submit">
               Submit
             </v-btn>
@@ -108,8 +97,9 @@
       </form>
     </v-card-item>
   </v-card>
+
   <v-card flat>
-    <v-card-title>
+    <v-card-title class="pa-0 pb-3">
       <v-text-field hide-details density="compact" width="25%" variant="outlined" v-model="searchQuery"
         label="Search by Design No., Product etc" prepend-inner-icon="mdi-magnify" clearable />
     </v-card-title>
@@ -124,12 +114,10 @@
   </v-card>
 </template>
 
-
-
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
-import { useForm, useField } from 'vee-validate'
-import { goldColors, IProductOption, productOptions, purityOptions } from '@/models/product';
+import { computed, onMounted, ref, watch } from 'vue'
+import { useForm } from 'vee-validate'
+import { goldColors, productOptions, purityOptions } from '@/models/product';
 import { useLoader } from '@/composables/useLoader';
 import { apiCreate, apiGetAll, apiUpdate } from '@/services/apiService';
 import { DataSourceObjects } from '@/models/api';
@@ -138,96 +126,127 @@ import { DesignImageUploadUrl, DesignImageUrl } from '@/services/apiUrls';
 import { useSnackbar } from '@/composables/useSnackbar';
 import { DefaultErrorMsg } from '@/services/constants';
 import { IDesign } from '@/models/design';
+import { object, string } from 'yup';
 
 const { showLoader, hideLoader } = useLoader();
 const { showSnackbar } = useSnackbar();
 
 // Search input
-const searchQuery = ref('')
+const searchQuery = ref('');
 
-const { handleSubmit, resetForm } = useForm<IDesign>({
-  validationSchema: {
-    designNo: v => (!!v && v.length >= 1) || 'Design No. is required',
-    productData: v => (!!v) || 'Product is required',
-    specValue: v => (!!v && v.toString().trim() !== '') || 'Required',
-    goldCarat: v => (!!v && v.length >= 1) || 'Gold Carat is required',
-    goldColor: v => (!!v && v.length >= 1) || 'Gold Color is required',
-    goldWeight: v =>
-      (v !== null && v !== undefined && v.toString().trim() !== '' && !isNaN(parseFloat(v))) || 'Gold Weight is required',
-    diamondWeight: v =>
-      (v !== null && v !== undefined && v.toString().trim() !== '' && !isNaN(parseFloat(v))) || 'Diamond Weight is required',
-    colorStoneWeight: v =>
-      (v !== null && v !== undefined && v.toString().trim() !== '' && !isNaN(parseFloat(v))) || 'Color Stone Weight is required',
-  },
-});
-
-// Table headers
-const headers = [
-  { title: 'Design No.', value: 'designNo', sortable: true },
-  { title: 'Product', value: 'product', sortable: true },
-  { title: 'Specification', value: 'specification', sortable: true },
-  { title: 'Spec Value', value: 'specValue', sortable: true },
-  { title: 'Unit', value: 'unit', sortable: true },
-  { title: 'Gold Carat', value: 'goldCarat', sortable: true },
-  { title: 'Gold Color', value: 'goldColor', sortable: true },
-  { title: 'Gold Weight', value: 'goldWeight', sortable: true },
-  { title: 'Diamond Weight', value: 'diamondWeight', sortable: true },
-  { title: 'Color Stone Weight', value: 'colorStoneWeight', sortable: true },
-  { title: 'Actions', value: 'actions', sortable: false },
-]
-
-interface IDesignTableItem { designId: string; designNo: string; product: string; specification: string; unit: string; specValue: string; goldCarat: string; goldColor: string; goldWeight: string; diamondWeight: string, colorStoneWeight: string }
-
-const items = ref<
-  IDesignTableItem[]
->([]);
-
-const filteredItems = computed(() => {
-  const query = searchQuery.value.trim().toLowerCase()
-  if (!query) return items.value
-
-  return items.value.filter(
-    i =>
-      i.designNo.toLowerCase().includes(query) ||
-      i.goldColor.toLowerCase().includes(query) ||
-      i.product.toLowerCase().includes(query) ||
-      i.specification.toLowerCase().includes(query) ||
-      i.unit.toLowerCase().includes(query)
-  )
-})
-
-const designNo = useField('designNo');
-const goldCarat = useField<string>('goldCarat');
-const goldColor = useField<string>('goldColor');
-const goldWeight = useField('goldWeight');
-const diamondWeight = useField('diamondWeight');
-const colorStoneWeight = useField('colorStoneWeight');
-const productData = useField<null | IProductOption>('productData');
-const specValue = useField<any>('specValue');
-const imageFiles = ref<File[]>([]);
-const imagePreviews = ref<string[]>([]);
-const designImageMap = new Map<string, string[]>();
 
 onMounted(() => {
   loadAllDesigns();
 })
 
+// Table headers
+const headers = [
+  { title: 'Design No.', key: 'designNo', sortable: true },
+  { title: 'Product', key: 'productData.product', sortable: true },
+  { title: 'Specification', key: 'productData.specification', sortable: true },
+  { title: 'Spec Value', key: 'specValue', sortable: true },
+  { title: 'Unit', key: 'productData.unit', sortable: true },
+  { title: 'Gold Carat', key: 'goldCarat', sortable: true },
+  { title: 'Gold Color', key: 'goldColor', sortable: true },
+  { title: 'Gold Weight', key: 'goldWeight', sortable: true },
+  { title: 'Diamond Weight', key: 'diamondWeight', sortable: true },
+  { title: 'Color Stone Weight', key: 'colorStoneWeight', sortable: true },
+  { title: 'Actions', key: 'actions', sortable: false },
+]
+
+const allDesigns = ref<IDesign[]>([]);
+
+const filteredItems = computed(() => {
+  const query = searchQuery.value.trim().toLowerCase()
+  if (!query) return allDesigns.value
+
+  return allDesigns.value.filter(
+    i =>
+      i.designNo.toLowerCase().includes(query) ||
+      i.goldColor.toLowerCase().includes(query) ||
+      i.productData?.product.toLowerCase().includes(query) ||
+      i.productData?.specification.toLowerCase().includes(query) ||
+      i.productData?.unit.toLowerCase().includes(query)
+  )
+})
+
+const validationSchema = object({
+  designNo: string()
+    .required('Design No. is required')
+    .min(1, 'Design No. is required'),
+  productData: object({
+    product: string().required("Product is required")
+  }).required(),
+  specValue: string()
+    .trim()
+    .required('Required'),
+  goldCarat: string()
+    .required('Gold Carat is required')
+    .min(1, 'Gold Carat is required'),
+  goldColor: string()
+    .required('Gold Color is required')
+    .min(1, 'Gold Color is required'),
+  goldWeight: string()
+    .required('Gold Weight is required')
+    .test(
+      'is-valid-number',
+      'Gold Weight is required',
+      value => value != null && value.toString().trim() !== '' && !isNaN(parseFloat(value))
+    ),
+  diamondWeight: string()
+    .required('Diamond Weight is required')
+    .test(
+      'is-valid-number',
+      'Diamond Weight is required',
+      value => value != null && value.toString().trim() !== '' && !isNaN(parseFloat(value))
+    ),
+  colorStoneWeight: string()
+    .required('Color Stone Weight is required')
+    .test(
+      'is-valid-number',
+      'Color Stone Weight is required',
+      value => value != null && value.toString().trim() !== '' && !isNaN(parseFloat(value))
+    ),
+});
+
+
+const initialValues: IDesign = {
+  designId: '',
+  designNo: null,
+  productData: null,
+  goldCarat: null,
+  colorStoneWeight: null,
+  diamondWeight: null,
+  goldColor: null,
+  goldWeight: null,
+  specValue: null
+}
+
+const { handleSubmit, resetForm, errors, setValues, values, defineField } = useForm<IDesign>({
+  validationSchema,
+  validateOnMount: false,
+  initialValues: { ...initialValues }
+});
+
+
+
+const [designNo] = defineField('designNo');
+const [goldCarat] = defineField('goldCarat');
+const [goldColor] = defineField('goldColor');
+const [goldWeight] = defineField('goldWeight');
+const [diamondWeight] = defineField('diamondWeight');
+const [colorStoneWeight] = defineField('colorStoneWeight');
+const [productData] = defineField('productData');
+const [specValue] = defineField('specValue');
+const imageFiles = ref<File[]>([]);
+const imagePreviews = ref<string[]>([]);
+const designImageMap = new Map<string, string[]>();
+
+
 function loadAllDesigns() {
   showLoader()
   apiGetAll<IDesign[]>(DataSourceObjects.design).then(resp => {
-    items.value = resp.map(x => ({
-      designId: x.designId,
-      colorStoneWeight: x.colorStoneWeight,
-      designNo: x.designNo,
-      diamondWeight: x.diamondWeight,
-      goldCarat: x.goldCarat,
-      goldColor: x.goldColor,
-      goldWeight: x.goldWeight,
-      specValue: x.specValue,
-      product: x.productData.product,
-      specification: x.productData.specification,
-      unit: x.productData.unit
-    }))
+    allDesigns.value = resp;
   })
     .finally(hideLoader)
 }
@@ -311,36 +330,24 @@ const submit = handleSubmit(async values => {
 });
 
 function resetDesignForm(designNo: string) {
-  resetForm({
-    values: {
-      designId: null,
-      designNo: null,
-      productData: null,
-      specValue: null,
-      goldCarat: null,
-      goldColor: null,
-      goldWeight: null,
-      diamondWeight: null,
-      colorStoneWeight: null
-    }
-  });
+  resetForm({ values: { ...initialValues } });
   imageFiles.value = [];
   imagePreviews.value = [];
   designImageMap.delete(designNo);
 }
 
 function formatDecimal(field) {
-  const raw = field.value.value?.toString().trim();
+  const raw = field?.toString().trim();
   if (!raw) {
-    field.value.value = '';
+    field = '';
     return;
   }
 
   const val = parseFloat(raw);
   if (isNaN(val)) {
-    field.value.value = '';
+    field = '';
   } else {
-    field.value.value = val.toFixed(3);
+    field = val.toFixed(3);
   }
 }
 
@@ -360,36 +367,20 @@ function limitDecimals(event: Event, field) {
   }
 
   // Update field value without triggering formatting
-  field.value.value = value;
+  field = value;
 }
 
-async function edit(item: IDesignTableItem) {
-  resetForm({
-    values: {
-      designId: item.designId,
-      designNo: item.designNo,
-      productData: productOptions.find(x => x.product == item.product),
-      specValue: item.specValue,
-      goldCarat: item.goldCarat,
-      goldColor: item.goldColor,
-      goldWeight: item.goldWeight,
-      diamondWeight: item.diamondWeight,
-      colorStoneWeight: item.colorStoneWeight
-    }
-  });
-
+async function edit(item: IDesign) {
+  setValues(item);
   var imageUrls = designImageMap.get(item.designNo);
-
   if (!imageUrls?.length) {
     imageUrls = await getDesignImageUrl(item.designNo);
     designImageMap.set(item.designNo, imageUrls);
   }
-
   if (imageUrls?.length) {
     const imageFiles = await filesFromUrls(imageUrls);
     combineImageAndGeneratePreviews(imageFiles);
   }
-
 }
 
 async function getDesignImageUrl(designNo: string) {
