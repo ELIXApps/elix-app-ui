@@ -52,7 +52,7 @@
                             variant="outlined" @update:model-value="onDesginNoSelect" />
                     </v-col>
                     <v-col cols="3">
-                        <v-select v-model="product" :error-messages="''" :items="productOptions" label="product"
+                        <v-select v-model="productData.product" :items="productOptions" label="product"
                             density="compact" readonly variant="outlined" />
                     </v-col>
                     <v-col cols="3" class="d-flex justify-space-between">
@@ -60,12 +60,12 @@
                         <!-- Specification Name -->
                         <div class="d-flex flex-column">
                             <div class="text-caption text-medium-emphasis">Specification</div>
-                            <div class="text-body-1">{{ selectedProductOption?.specification }}</div>
+                            <div class="text-body-1">{{ productData?.specification }}</div>
                         </div>
                         <!-- Specification Value -->
                         <div style="width: 60%;">
-                            <v-select v-if="selectedProductOption?.hasMultipleSpecValues" v-model="specValue"
-                                :error-messages="errors.specValue" :items="selectedProductOption?.specificationOptions"
+                            <v-select v-if="productData?.hasMultipleSpecValues" v-model="specValue"
+                                :error-messages="errors.specValue" :items="productData?.specificationOptions"
                                 label="Spec Value" density="compact" variant="outlined" />
                             <v-text-field v-else v-model="specValue" :error-messages="errors.specValue"
                                 label="Spec Value" type="number" density="compact" variant="outlined" />
@@ -74,7 +74,7 @@
                         <!-- Unit -->
                         <div class="d-flex flex-column">
                             <div class="text-caption text-medium-emphasis">Unit</div>
-                            <div class="text-body-1">{{ selectedProductOption?.unit }}</div>
+                            <div class="text-body-1">{{ productData?.unit }}</div>
                         </div>
 
                     </v-col>
@@ -195,11 +195,11 @@ onMounted(() => {
 });
 
 function loadAllOrders() {
+    showLoader();
     apiGetAll<IOrder[]>(DataSourceObjects.order)
         .then(resp => {
             allOrders.value = resp;
-            console.log(resp)
-        })
+        }).finally(hideLoader);
 }
 
 
@@ -275,7 +275,7 @@ const [specValue] = defineField('specValue')
 const [orderDate] = defineField('orderDate')
 const [dueDate] = defineField('dueDate')
 const [designNo] = defineField('designNo')
-const [product] = defineField('productData.product')
+const [productData] = defineField('productData')
 const [goldCarat] = defineField('goldCarat')
 const [goldColor] = defineField('goldColor')
 const [goldWeight] = defineField('goldWeight')
@@ -286,9 +286,9 @@ const [specialRemarks] = defineField('specialRemarks')
 const orderDateMenu = ref(false)
 const dueDateMenu = ref(false)
 
-const selectedProductOption = computed(() => {
-    return productOptions.find(p => p.product == product.value);
-})
+// const selectedProductOption = computed(() => {
+//     return productOptions.find(p => p.product == product.value);
+// })
 
 const imagePreviews = ref<string[]>([])
 

@@ -73,9 +73,9 @@ onMounted(() => {
 
 function loadAllCustomers() {
   showLoader()
-  apiGetAll(DataSourceObjects.customer)
+  apiGetAll<ICustomer[]>(DataSourceObjects.customer)
     .then(resp => {
-      customers.value = resp.value
+      customers.value = resp
       items.value = customers.value.map(x => ({
         firstName: x.firstName,
         lastName: x.lastName,
