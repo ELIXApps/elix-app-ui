@@ -12,6 +12,7 @@ import ElixRoutes from './router/ElixRoutes';
 import { fetchApi } from './services/fetchHelper';
 import { useLoader } from './composables/useLoader';
 import { ValidateTokenAPIUrl } from './services/apiUrls';
+import "./styles/app.scss";
 
 const router = useRouter();
 const isAuthLoading = ref(true);
@@ -67,9 +68,5 @@ function authFailed() {
 <style lang="css">
 body {
   zoom: 86%
-}
-
-.v-field--variant-outlined {
-  border-radius: 8px !important;
 }
 </style>
