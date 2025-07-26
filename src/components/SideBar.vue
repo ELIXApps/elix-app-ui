@@ -49,7 +49,7 @@ const sideMenu: IMenu[] = [
     }
 ];
 
-const userDetailsString = localStorage.getItem('userDetails');
+const userDetailsString = localStorage.getItem('userDetails') || '{}';
 const userDetails = userDetailsString ? JSON.parse(userDetailsString) : null;
 
 const user = {
