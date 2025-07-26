@@ -1,0 +1,14 @@
+.v-field--variant-outlined {
+  border-radius: 8px !important;
+}
+.order-booking-form {
+  & .v-text-field,
+  .v-select,
+  .v-autocomplete,
+  .v-combobox {
+    max-width: 250px;
+  }
+  & .v-textarea {
+    max-width: unset;
+  }
+}

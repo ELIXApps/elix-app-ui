@@ -1,103 +1,96 @@
 <template>
 
   <v-card flat class="mb-3">
-    <v-card-item>
+    <v-card-item class="pa-0">
       <form @submit.prevent="submit">
-        <v-row dense class="pt-2">
-          <v-col cols="3">
-            <v-text-field v-model="designNo" :error-messages="errors.designNo" label="Design No." density="compact"
-              variant="outlined" />
-          </v-col>
-          <v-col cols="3">
-            <v-select v-model="productData" :items="productOptions" label="Product" density="compact" variant="outlined"
-              item-title="product" return-object
-              :error-messages="errors['productData.product'] || errors.productData" />
-          </v-col>
-          <v-col cols="3" class="d-flex justify-space-between">
-            <template v-if="productData">
-              <!-- Specification Name -->
-              <div class="d-flex flex-column">
-                <div class="text-caption text-medium-emphasis">Specification</div>
-                <div class="text-body-1">{{ productData.specification }}</div>
-              </div>
-              <!-- Specification Value -->
-              <div style="width: 60%;">
-                <v-select v-if="productData.hasMultipleSpecValues" v-model="specValue"
-                  :items="productData.specificationOptions" label="Spec Value" density="compact" variant="outlined"
-                  :error-messages="errors.specValue" />
-                <v-text-field v-else v-model="specValue" label="Spec Value" type="number" density="compact"
-                  variant="outlined" :error-messages="errors.specValue" />
-              </div>
+        <v-row>
+          <v-col cols="8">
+            <v-row class="pt-2">
+              <v-col cols="4">
+                <v-text-field v-model="designNo" :error-messages="errors.designNo" label="Design No." density="compact"
+                  variant="outlined" />
+              </v-col>
+              <v-col cols="4">
+                <v-select v-model="productData" :items="productOptions" label="Product" density="compact"
+                  variant="outlined" item-title="product" return-object :error-messages="errors.productData" />
+              </v-col>
+              <v-col cols="4">
+                <template v-if="productData">
+                  <v-select v-if="productData?.hasMultipleSpecValues" v-model="specValue"
+                    :error-messages="errors.specValue" :items="productData?.specificationOptions"
+                    :label="productData?.specification || 'Specification'" density="compact" variant="outlined"
+                    :suffix="productData?.unit" />
+                  <v-text-field v-else v-model="specValue" :error-messages="errors.specValue"
+                    :label="productData?.specification || 'Specification'" type="number" density="compact"
+                    variant="outlined" :suffix="productData?.unit" />
+                </template>
+                <div v-else class="text-medium-emphasis mt-3">Select product to show specifications</div>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col cols="4">
+                <v-select v-model="goldCarat" :items="purityOptions" :error-messages="errors.goldCarat"
+                  label="Gold Carat" density="compact" variant="outlined" item-title="gold carat" />
+              </v-col>
+              <v-col cols="4">
+                <v-select v-model="goldColor" :error-messages="errors.goldColor" :items="goldColors" label="Gold Color"
+                  density="compact" variant="outlined" item-title="gold color" />
+              </v-col>
 
-              <!-- Unit -->
-              <div class="d-flex flex-column">
-                <div class="text-caption text-medium-emphasis">Unit</div>
-                <div class="text-body-1">{{ productData.unit }}</div>
-              </div>
+              <v-col cols="4">
+                <v-text-field v-model="goldWeight" :error-messages="errors.goldWeight" label="Gold Weight in Gms"
+                  density="compact" variant="outlined" type="text" @blur="formatDecimal(goldWeight)"
+                  @input="limitDecimals($event, goldWeight)" />
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col cols="4">
+                <v-text-field v-model="diamondWeight" :error-messages="errors.diamondWeight"
+                  label="Diamond Weight in Cts" density="compact" variant="outlined" type="text"
+                  @blur="formatDecimal(diamondWeight)" @input="limitDecimals($event, diamondWeight)" />
+              </v-col>
 
-            </template>
-            <div v-else class="text-medium-emphasis mt-3">Select product to show specifications</div>
+              <v-col cols="4">
+                <v-text-field v-model="colorStoneWeight" :error-messages="errors.colorStoneWeight"
+                  label="Color Stone Weight in Cts" density="compact" variant="outlined" type="text"
+                  @blur="formatDecimal(colorStoneWeight)" @input="limitDecimals($event, colorStoneWeight)" />
+              </v-col>
+            </v-row>
           </v-col>
-
-          <v-col cols="3">
-            <v-select v-model="goldCarat" :items="purityOptions" :error-messages="errors.goldCarat" label="Gold Carat"
-              density="compact" variant="outlined" item-title="gold carat" />
+          <v-col cols="4">
+            <!-- Image Upload -->
+            <v-row class="pt-4">
+              <label class="d-flex mb-4" style="cursor: pointer">
+                <v-icon class="mr-2">mdi-paperclip</v-icon>
+                <input type="file" accept="image/*" multiple hidden @change="onFileChange"
+                  :disabled="imageFiles.length >= 3" />
+                <span>Attach Images (max 3)</span>
+              </label>
+            </v-row>
+            <v-row>
+              <v-col cols="8" class="d-flex">
+                <v-responsive max-width="200" max-height="200" class="mr-2" v-for="(preview, index) in imagePreviews"
+                  :key="index">
+                  <v-img :src="preview" cover />
+                  <v-btn icon variant="flat" class="ma-2" size="x-small"
+                    style="position: absolute; top: 0; right: 0; z-index: 1; background-color: rgba(0,0,0,0.6)"
+                    @click="removeImage(index)">
+                    <v-icon color="white">mdi-close</v-icon>
+                  </v-btn>
+                </v-responsive>
+              </v-col>
+            </v-row>
           </v-col>
         </v-row>
 
-        <v-row dense>
-          <v-col cols="3">
-            <v-select v-model="goldColor" :error-messages="errors.goldColor" :items="goldColors" label="Gold Color"
-              density="compact" variant="outlined" item-title="gold color" />
-          </v-col>
-
-          <v-col cols="3">
-            <v-text-field v-model="goldWeight" :error-messages="errors.goldWeight" label="Gold Weight in Gms"
-              density="compact" variant="outlined" type="text" @blur="formatDecimal(goldWeight)"
-              @input="limitDecimals($event, goldWeight)" />
-          </v-col>
-
-          <v-col cols="3">
-            <v-text-field v-model="diamondWeight" :error-messages="errors.diamondWeight" label="Diamond Weight in Cts"
-              density="compact" variant="outlined" type="text" @blur="formatDecimal(diamondWeight)"
-              @input="limitDecimals($event, diamondWeight)" />
-          </v-col>
-
-          <v-col cols="3">
-            <v-text-field v-model="colorStoneWeight" :error-messages="errors.colorStoneWeight"
-              label="Color Stone Weight in Cts" density="compact" variant="outlined" type="text"
-              @blur="formatDecimal(colorStoneWeight)" @input="limitDecimals($event, colorStoneWeight)" />
-          </v-col>
-        </v-row>
-
-        <!-- Image Upload -->
-        <v-row dense>
-          <label class="d-flex align-center mb-4" style="cursor: pointer">
-            <v-icon class="mr-2">mdi-paperclip</v-icon>
-            <input type="file" accept="image/*" multiple hidden @change="onFileChange"
-              :disabled="imageFiles.length >= 3" />
-            <span>Attach Images (max 3)</span>
-          </label>
-        </v-row>
-
-        <v-row dense class="d-flex justify-space-between pb-2">
-          <v-col cols="8" class="d-flex">
-            <v-responsive max-width="100" max-height="100" class="mr-2" v-for="(preview, index) in imagePreviews"
-              :key="index">
-              <v-img :src="preview" cover />
-              <v-btn icon variant="flat" class="ma-2" size="x-small"
-                style="position: absolute; top: 0; right: 0; z-index: 1; background-color: rgba(0,0,0,0.6)"
-                @click="removeImage(index)">
-                <v-icon color="white">mdi-close</v-icon>
-              </v-btn>
-            </v-responsive>
-          </v-col>
+        <v-row dense class="d-flex justify-end pb-2">
           <v-col cols="auto" class="d-flex justify-end align-end">
-            <v-btn class="me-2" density="compact" variant="tonal" color="success" size="x-large" type="submit">
-              Submit
-            </v-btn>
-            <v-btn density="compact" variant="tonal" color="danger" :onclick="resetDesignForm" size="x-large">
+            <v-btn class="me-2" density="compact" variant="tonal" color="danger" :onclick="resetDesignForm"
+              size="x-large">
               {{ values.designId ? 'Cancel' : 'Clear' }}
+            </v-btn>
+            <v-btn density="compact" variant="tonal" color="success" size="x-large" type="submit">
+              Submit
             </v-btn>
           </v-col>
         </v-row>
@@ -106,7 +99,7 @@
   </v-card>
 
   <v-card flat>
-    <v-card-title>
+    <v-card-title class="pa-0 pb-3">
       <v-text-field hide-details density="compact" width="25%" variant="outlined" v-model="searchQuery"
         label="Search by Design No., Product etc" prepend-inner-icon="mdi-magnify" clearable />
     </v-card-title>

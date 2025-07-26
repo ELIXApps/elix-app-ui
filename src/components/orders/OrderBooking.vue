@@ -1,113 +1,104 @@
 <template>
     <!-- TOP PART: FORM -->
-    <v-card flat class="mb-3">
-        <v-card-item>
+    <v-card flat class="mb-3 order-booking-form">
+        <v-card-item class="pa-0">
             <form @submit.prevent="submitForm">
-                <!-- First Row -->
-                <v-row dense>
-                    <v-col cols="3">
-                        <v-select v-model="orderType" :error-messages="errors.orderType"
-                            :items="Object.values(OrderType)" label="Order Type" density="compact" variant="outlined" />
-                    </v-col>
-
-                    <v-col cols="3">
-                        <v-text-field v-model="customer" :error-messages="errors.customer" label="Customer"
-                            density="compact" variant="outlined" />
-                    </v-col>
-
-                    <!-- ORDER DATE -->
-                    <v-col cols="3">
-                        <v-menu v-model="orderDateMenu" :close-on-content-click="false" transition="scale-transition"
-                            offset-y>
-                            <template #activator="{ props }">
-                                <v-text-field v-bind="props"
-                                    :model-value="orderDate ? new Date(orderDate).toDateString() : ''"
-                                    :error-messages="errors.orderDate" label="Order Date" readonly density="compact"
+                <v-row class="mb-2">
+                    <v-col cols="9">
+                        <!-- First Row -->
+                        <v-row dense>
+                            <v-col cols="3">
+                                <v-select v-model="orderType" :error-messages="errors.orderType"
+                                    :items="Object.values(OrderType)" label="Order Type" density="compact"
                                     variant="outlined" />
-                            </template>
-                            <v-date-picker v-model="orderDate" @update:modelValue="orderDateMenu = false" />
-                        </v-menu>
-                    </v-col>
+                            </v-col>
 
-                    <!-- DUE DATE -->
-                    <v-col cols="3">
-                        <v-menu v-model="dueDateMenu" :close-on-content-click="false" transition="scale-transition"
-                            offset-y>
-                            <template #activator="{ props }">
-                                <v-text-field v-bind="props"
-                                    :model-value="dueDate ? new Date(dueDate).toDateString() : ''"
-                                    :error-messages="errors.dueDate" label="Due Date" readonly density="compact"
-                                    variant="outlined" />
-                            </template>
-                            <v-date-picker v-model="dueDate" @update:modelValue="dueDateMenu = false" />
-                        </v-menu>
-                    </v-col>
-                </v-row>
+                            <v-col cols="3">
+                                <v-text-field v-model="customer" :error-messages="errors.customer" label="Customer"
+                                    density="compact" variant="outlined" />
+                            </v-col>
 
-                <!-- Second Row -->
-                <v-row dense>
-                    <v-col cols="3">
-                        <v-autocomplete v-model="designNo" :error-messages="errors.designNo"
-                            :items="allDesigns.map(x => x.designNo)" label="Design No." density="compact"
-                            variant="outlined" @update:model-value="onDesginNoSelect" />
-                    </v-col>
-                    <v-col cols="3">
-                        <v-select v-model="productData.product" :items="productOptions" label="product"
-                            density="compact" readonly variant="outlined" />
-                    </v-col>
-                    <v-col cols="3" class="d-flex justify-space-between">
+                            <!-- ORDER DATE -->
+                            <v-col cols="3">
+                                <v-menu v-model="orderDateMenu" :close-on-content-click="false"
+                                    transition="scale-transition" offset-y>
+                                    <template #activator="{ props }">
+                                        <v-text-field v-bind="props"
+                                            :model-value="orderDate ? new Date(orderDate).toDateString() : ''"
+                                            :error-messages="errors.orderDate" label="Order Date" readonly
+                                            density="compact" variant="outlined" />
+                                    </template>
+                                    <v-date-picker v-model="orderDate" @update:modelValue="orderDateMenu = false" />
+                                </v-menu>
+                            </v-col>
 
-                        <!-- Specification Name -->
-                        <div class="d-flex flex-column">
-                            <div class="text-caption text-medium-emphasis">Specification</div>
-                            <div class="text-body-1">{{ productData?.specification }}</div>
-                        </div>
-                        <!-- Specification Value -->
-                        <div style="width: 60%;">
-                            <v-select v-if="productData?.hasMultipleSpecValues" v-model="specValue"
-                                :error-messages="errors.specValue" :items="productData?.specificationOptions"
-                                label="Spec Value" density="compact" variant="outlined" />
-                            <v-text-field v-else v-model="specValue" :error-messages="errors.specValue"
-                                label="Spec Value" type="number" density="compact" variant="outlined" />
-                        </div>
+                            <!-- DUE DATE -->
+                            <v-col cols="3">
+                                <v-menu v-model="dueDateMenu" :close-on-content-click="false"
+                                    transition="scale-transition" offset-y>
+                                    <template #activator="{ props }">
+                                        <v-text-field v-bind="props"
+                                            :model-value="dueDate ? new Date(dueDate).toDateString() : ''"
+                                            :error-messages="errors.dueDate" label="Due Date" readonly density="compact"
+                                            variant="outlined" />
+                                    </template>
+                                    <v-date-picker v-model="dueDate" @update:modelValue="dueDateMenu = false" />
+                                </v-menu>
+                            </v-col>
+                        </v-row>
 
-                        <!-- Unit -->
-                        <div class="d-flex flex-column">
-                            <div class="text-caption text-medium-emphasis">Unit</div>
-                            <div class="text-body-1">{{ productData?.unit }}</div>
-                        </div>
+                        <!-- Second Row -->
+                        <v-row dense>
+                            <v-col cols="3">
+                                <v-autocomplete v-model="designNo" :error-messages="errors.designNo"
+                                    :items="allDesigns.map(x => x.designNo)" label="Design No." density="compact"
+                                    variant="outlined" @update:model-value="onDesginNoSelect" />
+                            </v-col>
+                            <v-col cols="3">
+                                <v-select v-model="productData.product" :items="productOptions" label="product"
+                                    density="compact" readonly variant="outlined" />
+                            </v-col>
+                             <v-col cols="3">
+                                    <v-select v-if="productData?.hasMultipleSpecValues" v-model="specValue"
+                                        :error-messages="errors.specValue" :items="productData?.specificationOptions"
+                                        :label="productData?.specification || 'Specification'" density="compact" variant="outlined" :suffix="productData?.unit" />
+                                    <v-text-field v-else v-model="specValue" :error-messages="errors.specValue"
+                                        :label="productData?.specification || 'Specification'" type="number" density="compact" variant="outlined" :suffix="productData?.unit" />
+                            </v-col>
+                            
+                            <v-col cols="3">
+                                <v-select v-model="goldCarat" :error-messages="errors.goldCarat" :items="purityOptions"
+                                    label="Gold Carat" density="compact" variant="outlined" />
+                            </v-col>
+                        </v-row>
 
-                    </v-col>
-                    <v-col cols="3">
-                        <v-select v-model="goldCarat" :error-messages="errors.goldCarat" :items="purityOptions"
-                            label="Gold Carat" density="compact" variant="outlined" />
-                    </v-col>
-                </v-row>
+                        <!-- Third Row -->
+                        <v-row dense>
+                            <v-col cols="3">
+                                <v-select v-model="goldColor" :error-messages="errors.goldColor" :items="goldColors"
+                                    label="Gold Color" density="compact" variant="outlined" />
+                            </v-col>
+                            <v-col cols="3">
+                                <v-text-field v-model="goldWeight" :error-messages="errors.goldWeight"
+                                    label="Gold Weight in Gms" density="compact" variant="outlined" type="number" />
+                            </v-col>
+                            <v-col cols="3">
+                                <v-text-field v-model="diamondWeight" :error-messages="errors.diamondWeight"
+                                    label="Diamond Weight in Cts" density="compact" variant="outlined" type="number" />
+                            </v-col>
+                            <v-col cols="3">
+                                <v-text-field v-model="colorStoneWeight" :error-messages="errors.colorStoneWeight"
+                                    label="Color Stone Weight in Cts" density="compact" variant="outlined"
+                                    type="number" />
+                            </v-col>
+                        </v-row>
 
-                <!-- Third Row -->
-                <v-row dense>
-                    <v-col cols="3">
-                        <v-select v-model="goldColor" :error-messages="errors.goldColor" :items="goldColors"
-                            label="Gold Color" density="compact" variant="outlined" />
-                    </v-col>
-                    <v-col cols="3">
-                        <v-text-field v-model="goldWeight" :error-messages="errors.goldWeight"
-                            label="Gold Weight in Gms" density="compact" variant="outlined" type="number" />
-                    </v-col>
-                    <v-col cols="3">
-                        <v-text-field v-model="diamondWeight" :error-messages="errors.diamondWeight"
-                            label="Diamond Weight in Cts" density="compact" variant="outlined" type="number" />
-                    </v-col>
-                    <v-col cols="3">
-                        <v-text-field v-model="colorStoneWeight" :error-messages="errors.colorStoneWeight"
-                            label="Color Stone Weight in Cts" density="compact" variant="outlined" type="number" />
-                    </v-col>
-                </v-row>
-
-                <v-row dense>
-                    <v-col cols="6">
-                        <v-textarea v-model="specialRemarks" hide-details density="compact" persistent-clear rows="5"
-                            clearable label="Special Remarks" variant="outlined"></v-textarea>
+                        <v-row dense>
+                            <v-col cols="6">
+                                <v-textarea v-model="specialRemarks" hide-details density="compact" persistent-clear
+                                    rows="3" clearable label="Special Remarks" variant="outlined"></v-textarea>
+                            </v-col>
+                        </v-row>
                     </v-col>
                     <v-col cols="3">
                         <div class="text-caption text-medium-emphasis pb-2">Design Images</div>
@@ -122,17 +113,17 @@
                                 {{ designNo ? 'No images uploaded' : 'Please select a Desgin' }}</div>
                         </div>
                     </v-col>
-                    <v-col cols="3" class="d-flex justify-end align-end">
-                        <v-btn class="me-2" density="compact" variant="tonal" color="success" size="x-large"
-                            type="submit">
-                            Submit
-                        </v-btn>
-                        <v-btn density="compact" variant="tonal" color="danger" :onclick="resetOrderForm"
+                </v-row>
+                <v-row dense>
+                    <v-col cols="12" class="d-flex justify-end align-end">
+                        <v-btn class="me-2" density="compact" variant="tonal" color="danger" :onclick="resetOrderForm"
                             size="x-large">
                             {{ values.orderId ? 'Cancel' : 'Clear' }}
                         </v-btn>
+                        <v-btn density="compact" variant="tonal" color="success" size="x-large" type="submit">
+                            Submit
+                        </v-btn>
                     </v-col>
-
                 </v-row>
             </form>
         </v-card-item>
@@ -140,7 +131,7 @@
 
     <!-- BOTTOM PART: DATATABLE -->
     <v-card flat>
-        <v-card-title>
+        <v-card-title class="pa-0 pb-3">
             <v-text-field hide-details density="compact" width="25%" variant="outlined" v-model="searchQuery"
                 label="Search by Order ID, Design No. etc" prepend-inner-icon="mdi-magnify" clearable />
         </v-card-title>
@@ -250,7 +241,11 @@ const initialValues: IOrder = {
     orderDate: null,
     dueDate: null,
     designNo: null,
-    productData: null,
+    productData: {
+        product: null,
+        specification: '',
+        unit: ''
+    },
     goldCarat: null,
     goldColor: null,
     goldWeight: '',
