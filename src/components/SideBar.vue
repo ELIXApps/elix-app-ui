@@ -49,6 +49,15 @@ const sideMenu: IMenu[] = [
     }
 ];
 
+const userDetailsString = localStorage.getItem('userDetails');
+const userDetails = userDetailsString ? JSON.parse(userDetailsString) : null;
+
+const user = {
+    fullname: userDetails?.fullName || 'Guest User',
+    profileImage: userDetails?.profileImage
+};
+const defaultImage = "https://randomuser.me/api/portraits/lego/5.jpg"; // Default image URL
+
 </script>
 <template>
 
@@ -59,8 +68,15 @@ const sideMenu: IMenu[] = [
             <v-list-item lines="two">
                 <p class="text-h4 font-weight-bold">E L I X</p>
             </v-list-item>
-            <v-list-item lines="three" prepend-avatar="https://randomuser.me/api/portraits/lego/5.jpg"
-                subtitle="Logged in" title="vishnu vardhan"></v-list-item>
+            <v-list-item lines="three" subtitle="Logged in" :title="user.fullname">
+                <template #prepend>
+                    <v-avatar size="40">
+                        <v-img :src="user.profileImage" @error="user.profileImage = defaultImage"
+                            :alt="user.fullname" />
+                    </v-avatar>
+                </template>
+            </v-list-item>
+
         </template>
 
         <v-list nav dense>
