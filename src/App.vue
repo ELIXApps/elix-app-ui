@@ -13,6 +13,7 @@ import { fetchApi } from './services/fetchHelper';
 import { useLoader } from './composables/useLoader';
 import { ValidateTokenAPIUrl } from './services/apiUrls';
 import "./styles/app.scss";
+import { IApiResponse } from './models/api';
 
 const router = useRouter();
 const isAuthLoading = ref(true);
@@ -40,17 +41,18 @@ function initializeAuth() {
     return;
   }
 
-  fetchApi<any>(
+  fetchApi<IApiResponse<any>>(
     ValidateTokenAPIUrl,
     {
       method: 'POST'
     }
   ).then(resp => {
-    if (resp.statusCode !== 200) {
+    if (resp.status !== 'ok') {
       authFailed();
       return;
     }
     isAuthLoading.value = false;
+    
   }).catch(e => {
     console.error(e);
     authFailed();
