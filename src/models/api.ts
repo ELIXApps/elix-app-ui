@@ -5,7 +5,7 @@ interface IApiRequest {
 }
 
 interface IApiResponse<TValue> {
-  status: string;
+  status: "ok" | "error";
   value: TValue;
   message?: string;
   id?: string;
