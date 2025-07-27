@@ -1,13 +1,13 @@
-import { IApiRequest, IApiResponse } from "@/models/api";
+import { IApiResponse } from "@/models/api";
 import { fetchApi } from "./fetchHelper";
-import { DesignImageUrl } from "./apiUrls";
+import { DesignImageAPIUrl } from "./apiUrls";
 
-async function getImages(designNo: string): Promise<any> {
+async function getImages(designId: string): Promise<any> {
   try {
     var params = new URLSearchParams();
-    params.append("designId", designNo);
+    params.append("designId", designId);
     var response = await fetchApi<IApiResponse<any>>(
-      DesignImageUrl(params),
+      DesignImageAPIUrl(params),
       {
         method: "GET",
       }
@@ -18,11 +18,11 @@ async function getImages(designNo: string): Promise<any> {
   }
 }
 
-async function uploadImages(designNo: string, formData: FormData): Promise<any> {
+async function uploadImages(designId: string, formData: FormData): Promise<any> {
   try {
     var params = new URLSearchParams();
-    params.append("designId", designNo);
-    var response = await fetchApi<IApiResponse<any>>(DesignImageUrl(params), {
+    params.append("designId", designId);
+    var response = await fetchApi<IApiResponse<any>>(DesignImageAPIUrl(params), {
       method: "POST",
       body: formData,
     });
@@ -33,12 +33,12 @@ async function uploadImages(designNo: string, formData: FormData): Promise<any> 
 }
 
 
-async function deleteImages(designNo: string, fileName: string): Promise<any> {
+async function deleteImages(designId: string, fileName: string): Promise<any> {
   try {
     var params = new URLSearchParams();
-    params.append("designId", designNo);
+    params.append("designId", designId);
     params.append("fileName", fileName);
-    var response = await fetchApi<IApiResponse<any>>(DesignImageUrl(params), {
+    var response = await fetchApi<IApiResponse<any>>(DesignImageAPIUrl(params), {
       method: "DELETE"
     });
     return response;

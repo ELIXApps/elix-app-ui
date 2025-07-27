@@ -345,7 +345,7 @@ function limitDecimals(event: Event, field) {
 
 async function edit(item: IDesign) {
   setValues(item);
-  var imageUrls = designImageMap.get(item.designNo);
+  var imageUrls = designImageMap.get(item.designId);
   if (!imageUrls?.length) {
     imageUrls = await getImages(item.designNo);
     designImageMap.set(item.designNo, imageUrls);

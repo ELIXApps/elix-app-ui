@@ -8,4 +8,4 @@ export const ValidateTokenAPIUrl = ServerBaseUrl + "auth/validate";
 
 export const ServiceAPIUrl = ServerBaseUrl + "api";
 
-export const DesignImageUrl = (params: URLSearchParams) => ServiceAPIUrl + "/image?" + params.toString();
+export const DesignImageAPIUrl = (params: URLSearchParams) => ServiceAPIUrl + "/design/image?" + params.toString();
