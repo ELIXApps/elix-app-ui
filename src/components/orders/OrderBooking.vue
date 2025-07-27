@@ -58,14 +58,16 @@
                                 <v-select v-model="productData.product" :items="productOptions" label="product"
                                     density="compact" readonly variant="outlined" />
                             </v-col>
-                             <v-col cols="3">
-                                    <v-select v-if="productData?.hasMultipleSpecValues" v-model="specValue"
-                                        :error-messages="errors.specValue" :items="productData?.specificationOptions"
-                                        :label="productData?.specification || 'Specification'" density="compact" variant="outlined" :suffix="productData?.unit" />
-                                    <v-text-field v-else v-model="specValue" :error-messages="errors.specValue"
-                                        :label="productData?.specification || 'Specification'" type="number" density="compact" variant="outlined" :suffix="productData?.unit" />
+                            <v-col cols="3">
+                                <v-select v-if="productData?.hasMultipleSpecValues" v-model="specValue"
+                                    :error-messages="errors.specValue" :items="productData?.specificationOptions"
+                                    :label="productData?.specification || 'Specification'" density="compact"
+                                    variant="outlined" :suffix="productData?.unit" />
+                                <v-text-field v-else v-model="specValue" :error-messages="errors.specValue"
+                                    :label="productData?.specification || 'Specification'" type="number"
+                                    density="compact" variant="outlined" :suffix="productData?.unit" />
                             </v-col>
-                            
+
                             <v-col cols="3">
                                 <v-select v-model="goldCarat" :error-messages="errors.goldCarat" :items="purityOptions"
                                     label="Gold Carat" density="compact" variant="outlined" />
@@ -162,7 +164,7 @@ import { IDesign } from '@/models/design'
 import { apiCreate, apiGetAll, apiUpdate } from '@/services/apiService'
 import { DataSourceObjects } from '@/models/api'
 import { fetchApi } from '@/services/fetchHelper'
-import { DesignImageUrl } from '@/services/apiUrls'
+import { DesignImageApiUrl } from '@/services/apiUrls'
 import { useSnackbar } from '@/composables/useSnackbar'
 import { useLoader } from '@/composables/useLoader'
 import { DefaultErrorMsg } from '@/services/constants'
@@ -277,6 +279,7 @@ const [goldWeight] = defineField('goldWeight')
 const [diamondWeight] = defineField('diamondWeight')
 const [colorStoneWeight] = defineField('colorStoneWeight')
 const [specialRemarks] = defineField('specialRemarks')
+const [designId] = defineField('designId')
 
 const orderDateMenu = ref(false)
 const dueDateMenu = ref(false)
@@ -300,19 +303,19 @@ function onDesginNoSelect() {
 }
 
 function setImagePreviews() {
-    let imageUrls = designImageMap.get(designNo.value);
+    let imageUrls = designImageMap.get(designId.value);
     if (imageUrls?.length)
         imagePreviews.value = imageUrls;
     else
-        getDesignImageUrl(designNo.value).then(resp => {
+        getDesignImageUrl(designId.value).then(resp => {
             imagePreviews.value = resp;
-            designImageMap.set(designNo.value, resp);
+            designImageMap.set(designId.value, resp);
         });
 }
 
-async function getDesignImageUrl(designNo: string) {
+async function getDesignImageUrl(designId: string) {
     try {
-        return await fetchApi<string[]>(DesignImageUrl(designNo), {
+        return await fetchApi<string[]>(DesignImageApiUrl(designId), {
             method: 'GET'
         });
     } catch (error) {

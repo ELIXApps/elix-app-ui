@@ -122,7 +122,7 @@ import { useLoader } from '@/composables/useLoader';
 import { apiCreate, apiGetAll, apiUpdate } from '@/services/apiService';
 import { DataSourceObjects } from '@/models/api';
 import { fetchApi } from '@/services/fetchHelper';
-import { DesignImageUploadUrl, DesignImageUrl } from '@/services/apiUrls';
+import { DesignImageApiUrl } from '@/services/apiUrls';
 import { useSnackbar } from '@/composables/useSnackbar';
 import { DefaultErrorMsg } from '@/services/constants';
 import { IDesign } from '@/models/design';
@@ -318,7 +318,7 @@ const submit = handleSubmit(async values => {
     imageFiles.value.forEach(file => {
       formData.append(file.name, file);
     });
-    fetchApi(DesignImageUploadUrl(values.designNo), {
+    fetchApi(DesignImageApiUrl(response.id), {
       method: 'POST',
       body: formData
     });
@@ -372,10 +372,10 @@ function limitDecimals(event: Event, field) {
 
 async function edit(item: IDesign) {
   setValues(item);
-  var imageUrls = designImageMap.get(item.designNo);
+  var imageUrls = designImageMap.get(item.designId);
   if (!imageUrls?.length) {
-    imageUrls = await getDesignImageUrl(item.designNo);
-    designImageMap.set(item.designNo, imageUrls);
+    imageUrls = await getDesignImageUrl(item.designId);
+    designImageMap.set(item.designId, imageUrls);
   }
   if (imageUrls?.length) {
     const imageFiles = await filesFromUrls(imageUrls);
@@ -383,9 +383,9 @@ async function edit(item: IDesign) {
   }
 }
 
-async function getDesignImageUrl(designNo: string) {
+async function getDesignImageUrl(designId: string) {
   try {
-    return await fetchApi<string[]>(DesignImageUrl(designNo), {
+    return await fetchApi<string[]>(DesignImageApiUrl(designId), {
       method: 'GET'
     });
   } catch (error) {
