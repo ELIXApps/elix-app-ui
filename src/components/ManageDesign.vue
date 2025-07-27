@@ -38,22 +38,22 @@
               </v-col>
 
               <v-col cols="4">
-                <v-text-field v-model="goldWeight" :error-messages="errors.goldWeight" label="Gold Weight in Gms"
-                  density="compact" variant="outlined" type="text" @blur="formatDecimal(goldWeight)"
-                  @input="limitDecimals($event, goldWeight)" />
+                <v-text-field v-max-decimals="3" v-model="goldWeight" :error-messages="errors.goldWeight"
+                  label="Gold Weight in Gms" density="compact" variant="outlined" type="number" />
+
               </v-col>
             </v-row>
             <v-row>
               <v-col cols="4">
                 <v-text-field v-model="diamondWeight" :error-messages="errors.diamondWeight"
-                  label="Diamond Weight in Cts" density="compact" variant="outlined" type="text"
-                  @blur="formatDecimal(diamondWeight)" @input="limitDecimals($event, diamondWeight)" />
+                  label="Diamond Weight in Cts" density="compact" variant="outlined" type="number"
+                  v-max-decimals="3" />
               </v-col>
 
               <v-col cols="4">
                 <v-text-field v-model="colorStoneWeight" :error-messages="errors.colorStoneWeight"
-                  label="Color Stone Weight in Cts" density="compact" variant="outlined" type="text"
-                  @blur="formatDecimal(colorStoneWeight)" @input="limitDecimals($event, colorStoneWeight)" />
+                  label="Color Stone Weight in Cts" density="compact" variant="outlined" type="number"
+                  v-max-decimals="3" />
               </v-col>
             </v-row>
           </v-col>
@@ -115,7 +115,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useForm } from 'vee-validate'
 import { goldColors, productOptions, purityOptions } from '@/models/product';
 import { useLoader } from '@/composables/useLoader';
@@ -307,40 +307,6 @@ function resetDesignForm(designNo: string) {
   resetForm({ values: { ...initialValues } });
   designImages.value = [];
   designImageMap.delete(designNo);
-}
-
-function formatDecimal(field) {
-  const raw = field?.toString().trim();
-  if (!raw) {
-    field = '';
-    return;
-  }
-
-  const val = parseFloat(raw);
-  if (isNaN(val)) {
-    field = '';
-  } else {
-    field = val.toFixed(3);
-  }
-}
-
-function limitDecimals(event: Event, field) {
-  let value = (event.target as HTMLInputElement).value;
-
-  // Allow only one dot
-  const parts = value.split(".");
-  if (parts.length > 2) {
-    value = parts[0] + "." + parts.slice(1).join("");
-  }
-
-  // Limit decimal digits to 3
-  if (parts.length === 2) {
-    parts[1] = parts[1].slice(0, 3);
-    value = parts[0] + "." + parts[1];
-  }
-
-  // Update field value without triggering formatting
-  field = value;
 }
 
 async function edit(item: IDesign) {

@@ -81,15 +81,15 @@
                                     label="Gold Color" density="compact" variant="outlined" />
                             </v-col>
                             <v-col cols="3">
-                                <v-text-field v-model="goldWeight" :error-messages="errors.goldWeight"
+                                <v-text-field v-max-decimals="3" v-model="goldWeight" :error-messages="errors.goldWeight"
                                     label="Gold Weight in Gms" density="compact" variant="outlined" type="number" />
                             </v-col>
                             <v-col cols="3">
-                                <v-text-field v-model="diamondWeight" :error-messages="errors.diamondWeight"
+                                <v-text-field v-max-decimals="3" v-model="diamondWeight" :error-messages="errors.diamondWeight"
                                     label="Diamond Weight in Cts" density="compact" variant="outlined" type="number" />
                             </v-col>
                             <v-col cols="3">
-                                <v-text-field v-model="colorStoneWeight" :error-messages="errors.colorStoneWeight"
+                                <v-text-field v-max-decimals="3" v-model="colorStoneWeight" :error-messages="errors.colorStoneWeight"
                                     label="Color Stone Weight in Cts" density="compact" variant="outlined"
                                     type="number" />
                             </v-col>

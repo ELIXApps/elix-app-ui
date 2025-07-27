@@ -15,7 +15,9 @@ import { createApp } from "vue";
 
 // Styles
 import "unfonts.css";
+import { registerDirectives } from "./services/derectives";
 
 const app = createApp(App);
 registerPlugins(app);
+registerDirectives(app);
 app.mount("#app");
