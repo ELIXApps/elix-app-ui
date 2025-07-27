@@ -36,7 +36,7 @@
 import { useLoader } from '@/composables/useLoader'
 import { DataSourceObjects } from '@/models/api'
 import { ICustomer } from '@/models/customer'
-import { apiGetAll } from '@/services/apiService'
+import { apiGetAll } from '@/services/common/api'
 import { onMounted, ref, computed } from 'vue'
 
 // v-dialog

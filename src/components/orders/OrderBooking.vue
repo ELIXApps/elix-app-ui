@@ -81,17 +81,19 @@
                                     label="Gold Color" density="compact" variant="outlined" />
                             </v-col>
                             <v-col cols="3">
-                                <v-text-field v-model="goldWeight" :error-messages="errors.goldWeight"
-                                    label="Gold Weight in Gms" density="compact" variant="outlined" type="number" />
+                                <v-text-field v-max-decimals="3" v-model="goldWeight"
+                                    :error-messages="errors.goldWeight" label="Gold Weight in Gms" density="compact"
+                                    variant="outlined" type="number" />
                             </v-col>
                             <v-col cols="3">
-                                <v-text-field v-model="diamondWeight" :error-messages="errors.diamondWeight"
-                                    label="Diamond Weight in Cts" density="compact" variant="outlined" type="number" />
+                                <v-text-field v-max-decimals="3" v-model="diamondWeight"
+                                    :error-messages="errors.diamondWeight" label="Diamond Weight in Cts"
+                                    density="compact" variant="outlined" type="number" />
                             </v-col>
                             <v-col cols="3">
-                                <v-text-field v-model="colorStoneWeight" :error-messages="errors.colorStoneWeight"
-                                    label="Color Stone Weight in Cts" density="compact" variant="outlined"
-                                    type="number" />
+                                <v-text-field v-max-decimals="3" v-model="colorStoneWeight"
+                                    :error-messages="errors.colorStoneWeight" label="Color Stone Weight in Cts"
+                                    density="compact" variant="outlined" type="number" />
                             </v-col>
                         </v-row>
 
@@ -122,7 +124,8 @@
                             size="x-large">
                             {{ values.orderId ? 'Cancel' : 'Clear' }}
                         </v-btn>
-                        <v-btn density="compact" variant="tonal" color="success" size="x-large" type="submit">
+                        <v-btn :loading="isSubmitting" density="compact" variant="tonal" color="success" size="x-large"
+                            type="submit">
                             Submit
                         </v-btn>
                     </v-col>
@@ -140,8 +143,11 @@
         <v-data-table density="compact" :headers="tableHeaders" :items="filteredItems" :items-per-page="5"
             :items-per-page-options="[5, 10, 25, 50]" class="elevation-1">
             <template v-slot:item.actions="{ item }">
-                <v-btn density="compact" variant="text" icon @click="edit(item)">
-                    <v-icon>mdi-pencil</v-icon>
+                <v-btn class="me-1" density="compact" variant="text" icon @click="edit(item)">
+                    <v-icon color="primary">mdi-pencil</v-icon>
+                </v-btn>
+                <v-btn density="compact" variant="text" icon @click="deleteItem(item)">
+                    <v-icon color="danger">mdi-trash-can</v-icon>
                 </v-btn>
             </template>
             <template v-slot:item.orderDate="{ item }">
@@ -161,16 +167,17 @@ import { goldColors, productOptions, purityOptions } from '@/models/product'
 import { IOrder, OrderType } from '@/models/order'
 import { object, string, date } from 'yup'
 import { IDesign } from '@/models/design'
-import { apiCreate, apiGetAll, apiUpdate } from '@/services/apiService'
+import { apiCreate, apiGetAll, apiUpdate } from '@/services/common/api'
 import { DataSourceObjects } from '@/models/api'
-import { fetchApi } from '@/services/fetchHelper'
-import { DesignImageApiUrl } from '@/services/apiUrls'
 import { useSnackbar } from '@/composables/useSnackbar'
 import { useLoader } from '@/composables/useLoader'
-import { DefaultErrorMsg } from '@/services/constants'
+import { DefaultErrorMsg } from '@/services/common/constants'
+import { getImages } from '@/services/design'
+import { useConfirmDialog } from '@/composables/useConfirmDialog'
 
 const { showSnackbar } = useSnackbar();
-const { showLoader, hideLoader } = useLoader()
+const { showLoader, hideLoader } = useLoader();
+const { showConfirm } = useConfirmDialog();
 // Search input
 const searchQuery = ref('')
 
@@ -260,7 +267,7 @@ const initialValues: IOrder = {
 };
 
 // Form validation
-const { handleSubmit, defineField, errors, setValues, values, resetForm } = useForm<IOrder>({
+const { handleSubmit, isSubmitting, defineField, errors, setValues, values, resetForm } = useForm<IOrder>({
     validationSchema: schema,
     validateOnMount: false,
     initialValues: { ...initialValues }
@@ -284,10 +291,6 @@ const [designId] = defineField('designId')
 const orderDateMenu = ref(false)
 const dueDateMenu = ref(false)
 
-// const selectedProductOption = computed(() => {
-//     return productOptions.find(p => p.product == product.value);
-// })
-
 const imagePreviews = ref<string[]>([])
 
 const designImageMap = new Map<string, string[]>();
@@ -307,47 +310,50 @@ function setImagePreviews() {
     if (imageUrls?.length)
         imagePreviews.value = imageUrls;
     else
-        getDesignImageUrl(designId.value).then(resp => {
-            imagePreviews.value = resp;
-            designImageMap.set(designId.value, resp);
+        getImages(designId.value).then(resp => {
+            imagePreviews.value = Object.entries(resp).map(([fileName, preview]) => preview);
+            designImageMap.set(designId.value, [...imagePreviews.value]);
         });
 }
 
-async function getDesignImageUrl(designId: string) {
-    try {
-        return await fetchApi<string[]>(DesignImageApiUrl(designId), {
-            method: 'GET'
-        });
-    } catch (error) {
-        showSnackbar("Unexpected error while fetching design images. Please try again later", 'danger');
-    }
-}
-
-
-const submitForm = handleSubmit(async values => {
-    console.log('Form Submitted:', values)
-    showLoader();
-    var response = values.orderId ? await apiUpdate(DataSourceObjects.order, values) : await apiCreate(DataSourceObjects.order, values);
-    if (!['created', 'updated'].includes(response.status)) {
-        showSnackbar(DefaultErrorMsg, 'danger');
-        hideLoader();
-        return;
-    }
-    resetOrderForm();
-    loadAllOrders();
-    hideLoader();
-    showSnackbar("Order saved successfully");
-})
+const submitForm = handleSubmit(values =>
+    showConfirm({
+        onPrimaryAction: async () => {
+            showLoader();
+            var response = values.orderId ? await apiUpdate(DataSourceObjects.order, values) : await apiCreate(DataSourceObjects.order, values);
+            if (!['created', 'updated'].includes(response.status)) {
+                showSnackbar(DefaultErrorMsg, 'danger');
+                hideLoader();
+                return;
+            }
+            resetOrderForm();
+            loadAllOrders();
+            hideLoader();
+            showSnackbar("Order saved successfully");
+        },
+    })
+)
 
 function resetOrderForm() {
     resetForm({ values: { ...initialValues } });
     imagePreviews.value = [];
 }
 
-
 function edit(item: IOrder) {
     setValues(item);
     setImagePreviews();
+}
+
+
+function deleteItem(item: IOrder) {
+  showConfirm({
+    type: 'delete',
+    title: `Delete ${item.orderId}`,
+    message: 'Are you sure you want to delete this order?',
+    onPrimaryAction: async () => {
+      showSnackbar('Delete functionality yet to be implemented. Please contact Vishnu Vardhan (vishnu@elixapp.in)', 'danger');
+    }
+  })
 }
 
 </script>

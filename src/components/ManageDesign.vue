@@ -38,22 +38,21 @@
               </v-col>
 
               <v-col cols="4">
-                <v-text-field v-model="goldWeight" :error-messages="errors.goldWeight" label="Gold Weight in Gms"
-                  density="compact" variant="outlined" type="text" @blur="formatDecimal(goldWeight)"
-                  @input="limitDecimals($event, goldWeight)" />
+                <v-text-field v-max-decimals="3" v-model="goldWeight" :error-messages="errors.goldWeight"
+                  label="Gold Weight in Gms" density="compact" variant="outlined" type="number" />
+
               </v-col>
             </v-row>
             <v-row>
               <v-col cols="4">
                 <v-text-field v-model="diamondWeight" :error-messages="errors.diamondWeight"
-                  label="Diamond Weight in Cts" density="compact" variant="outlined" type="text"
-                  @blur="formatDecimal(diamondWeight)" @input="limitDecimals($event, diamondWeight)" />
+                  label="Diamond Weight in Cts" density="compact" variant="outlined" type="number" v-max-decimals="3" />
               </v-col>
 
               <v-col cols="4">
                 <v-text-field v-model="colorStoneWeight" :error-messages="errors.colorStoneWeight"
-                  label="Color Stone Weight in Cts" density="compact" variant="outlined" type="text"
-                  @blur="formatDecimal(colorStoneWeight)" @input="limitDecimals($event, colorStoneWeight)" />
+                  label="Color Stone Weight in Cts" density="compact" variant="outlined" type="number"
+                  v-max-decimals="3" />
               </v-col>
             </v-row>
           </v-col>
@@ -63,18 +62,18 @@
               <label class="d-flex mb-4" style="cursor: pointer">
                 <v-icon class="mr-2">mdi-paperclip</v-icon>
                 <input type="file" accept="image/*" multiple hidden @change="onFileChange"
-                  :disabled="imageFiles.length >= 3" />
+                  :disabled="designImages.length >= 3" />
                 <span>Attach Images (max 3)</span>
               </label>
             </v-row>
             <v-row>
               <v-col cols="8" class="d-flex">
-                <v-responsive max-width="200" max-height="200" class="mr-2" v-for="(preview, index) in imagePreviews"
+                <v-responsive max-width="200" max-height="200" class="mr-2" v-for="(image, index) in designImages"
                   :key="index">
-                  <v-img :src="preview" cover />
+                  <v-img :src="image.preview" cover />
                   <v-btn icon variant="flat" class="ma-2" size="x-small"
                     style="position: absolute; top: 0; right: 0; z-index: 1; background-color: rgba(0,0,0,0.6)"
-                    @click="removeImage(index)">
+                    @click="removeImage(image, index)">
                     <v-icon color="white">mdi-close</v-icon>
                   </v-btn>
                 </v-responsive>
@@ -89,7 +88,8 @@
               size="x-large">
               {{ values.designId ? 'Cancel' : 'Clear' }}
             </v-btn>
-            <v-btn density="compact" variant="tonal" color="success" size="x-large" type="submit">
+            <v-btn :loading="isSubmitting" density="compact" variant="tonal" color="success" size="x-large"
+              type="submit">
               Submit
             </v-btn>
           </v-col>
@@ -107,7 +107,10 @@
       :items-per-page-options="[5, 10, 25, 50]" class="elevation-1">
       <template v-slot:item.actions="{ item }">
         <v-btn density="compact" variant="text" icon @click="edit(item)">
-          <v-icon>mdi-pencil</v-icon>
+          <v-icon color="primary">mdi-pencil</v-icon>
+        </v-btn>
+        <v-btn density="compact" variant="text" icon @click="deleteItem(item)">
+          <v-icon color="danger">mdi-trash-can</v-icon>
         </v-btn>
       </template>
     </v-data-table>
@@ -115,21 +118,22 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useForm } from 'vee-validate'
 import { goldColors, productOptions, purityOptions } from '@/models/product';
 import { useLoader } from '@/composables/useLoader';
-import { apiCreate, apiGetAll, apiUpdate } from '@/services/apiService';
+import { apiCreate, apiGetAll, apiUpdate } from '@/services/common/api';
 import { DataSourceObjects } from '@/models/api';
-import { fetchApi } from '@/services/fetchHelper';
-import { DesignImageApiUrl } from '@/services/apiUrls';
 import { useSnackbar } from '@/composables/useSnackbar';
-import { DefaultErrorMsg } from '@/services/constants';
+import { DefaultErrorMsg } from '@/services/common/constants';
 import { IDesign } from '@/models/design';
 import { object, string } from 'yup';
+import { deleteImages, getImages, uploadImages } from '@/services/design';
+import { useConfirmDialog } from '@/composables/useConfirmDialog';
 
 const { showLoader, hideLoader } = useLoader();
 const { showSnackbar } = useSnackbar();
+const { showConfirm } = useConfirmDialog();
 
 // Search input
 const searchQuery = ref('');
@@ -222,7 +226,7 @@ const initialValues: IDesign = {
   specValue: null
 }
 
-const { handleSubmit, resetForm, errors, setValues, values, defineField } = useForm<IDesign>({
+const { handleSubmit, isSubmitting, resetForm, errors, setValues, values, defineField } = useForm<IDesign>({
   validationSchema,
   validateOnMount: false,
   initialValues: { ...initialValues }
@@ -238,9 +242,15 @@ const [diamondWeight] = defineField('diamondWeight');
 const [colorStoneWeight] = defineField('colorStoneWeight');
 const [productData] = defineField('productData');
 const [specValue] = defineField('specValue');
-const imageFiles = ref<File[]>([]);
-const imagePreviews = ref<string[]>([]);
-const designImageMap = new Map<string, string[]>();
+
+interface IDesignImageFile {
+  file?: File,
+  preview: string,
+  fileName?: string
+}
+const designImages = ref<IDesignImageFile[]>([]);
+// const imagePreviews = ref<string[]>([]);
+const designImageMap = new Map<string, string[][]>();
 
 
 function loadAllDesigns() {
@@ -251,146 +261,98 @@ function loadAllDesigns() {
     .finally(hideLoader)
 }
 
-function onFileChange(event: Event) {
-  const files = Array.from(
-    (event.target as HTMLInputElement)?.files ?? []
-  );
+async function onFileChange(event: Event) {
+  const input = event.target as HTMLInputElement;
+  const selectedFiles = Array.from(input?.files ?? []);
+  const processedFiles: IDesignImageFile[] = [];
 
-  combineImageAndGeneratePreviews(files);
-
-  // Reset input value so selecting the same file again triggers change
-  (event.target as HTMLInputElement).value = "";
-}
-
-function combineImageAndGeneratePreviews(files: File[]) {
-  // Combine existing files with new ones, max 3
-  const combined = [...imageFiles.value, ...files].slice(0, 3);
-
-  imageFiles.value = combined;
-  imagePreviews.value = [];
-
-  // Generate previews
-  combined.forEach(file => {
-    const reader = new FileReader();
-    reader.onload = e => {
-      imagePreviews.value.push(e.target?.result as string);
-    };
-    reader.readAsDataURL(file);
-  });
-}
-
-
-function removeImage(index: number) {
-  imageFiles.value.splice(index, 1);
-  imagePreviews.value.splice(index, 1);
-}
-
-async function filesFromUrls(urls: string[]): Promise<File[]> {
-  const files = await Promise.all(
-    urls.map(async (url, index) => {
-      const response = await fetch(url);
-      const blob = await response.blob();
-
-      // Try to extract filename from URL or fallback
-      const urlObj = new URL(url);
-      const pathname = urlObj.pathname;
-      const originalName = pathname.substring(pathname.lastIndexOf('/') + 1).split('?')[0];
-      const filename = originalName || `image_${index}.jpg`;
-
-      return new File([blob], filename, { type: blob.type || 'image/jpeg' });
-    })
-  );
-
-  return files;
-}
-
-const submit = handleSubmit(async values => {
-  showLoader();
-  var response = values.designId ? await apiUpdate(DataSourceObjects.design, values) : await apiCreate(DataSourceObjects.design, values);
-  if (!['created', 'updated'].includes(response.status)) {
-    showSnackbar(DefaultErrorMsg, 'danger');
-    hideLoader();
-    return;
-  }
-
-  if (imageFiles.value.length) {
-    var formData = new FormData();
-    imageFiles.value.forEach(file => {
-      formData.append(file.name, file);
-    });
-    fetchApi(DesignImageApiUrl(response.id), {
-      method: 'POST',
-      body: formData
+  for (const file of selectedFiles) {
+    const preview = await file.toDataUrl();
+    processedFiles.push({
+      file,
+      preview,
     });
   }
-  showSnackbar("Design saved successfully");
-  resetDesignForm(values.designNo);
-  loadAllDesigns();
-  hideLoader();
-});
 
-function resetDesignForm(designNo: string) {
+  designImages.value = [...designImages.value, ...processedFiles].slice(0, 3);
+
+  // Clear input so selecting the same file again triggers the change event
+  input.value = "";
+}
+
+
+function removeImage(image: IDesignImageFile, index: number) {
+  showConfirm({
+    type: 'delete',
+    message: 'Are you sure you want to remove this image?',
+    onPrimaryAction: async () => {
+      if (!image.file) {
+        deleteImages(values.designId, image.fileName);
+        designImageMap.delete(values.designId);
+      }
+      designImages.value.splice(index, 1);
+    }
+  })
+}
+
+const submit = handleSubmit(values =>
+  showConfirm({
+    onPrimaryAction: async () => {
+      showLoader();
+      var response = values.designId ? await apiUpdate(DataSourceObjects.design, values) : await apiCreate(DataSourceObjects.design, values);
+      if (!['created', 'updated'].includes(response.status)) {
+        showSnackbar(DefaultErrorMsg, 'danger');
+        hideLoader();
+        return;
+      }
+
+      if (designImages.value?.length) {
+        var formData = new FormData();
+        designImages.value.filter(x => x.file?.size).forEach(x => {
+          formData.append(x.fileName, x.file);
+        });
+        await uploadImages(response.id || values.designId, formData);
+      }
+      showSnackbar("Design saved successfully");
+      resetDesignForm(response.id || values.designId);
+      loadAllDesigns();
+      hideLoader();
+    }
+  })
+);
+
+function resetDesignForm(designId: string) {
   resetForm({ values: { ...initialValues } });
-  imageFiles.value = [];
-  imagePreviews.value = [];
-  designImageMap.delete(designNo);
-}
-
-function formatDecimal(field) {
-  const raw = field?.toString().trim();
-  if (!raw) {
-    field = '';
-    return;
-  }
-
-  const val = parseFloat(raw);
-  if (isNaN(val)) {
-    field = '';
-  } else {
-    field = val.toFixed(3);
-  }
-}
-
-function limitDecimals(event: Event, field) {
-  let value = (event.target as HTMLInputElement).value;
-
-  // Allow only one dot
-  const parts = value.split(".");
-  if (parts.length > 2) {
-    value = parts[0] + "." + parts.slice(1).join("");
-  }
-
-  // Limit decimal digits to 3
-  if (parts.length === 2) {
-    parts[1] = parts[1].slice(0, 3);
-    value = parts[0] + "." + parts[1];
-  }
-
-  // Update field value without triggering formatting
-  field = value;
+  designImages.value = [];
+  designImageMap.delete(designId);
 }
 
 async function edit(item: IDesign) {
   setValues(item);
-  var imageUrls = designImageMap.get(item.designId);
-  if (!imageUrls?.length) {
-    imageUrls = await getDesignImageUrl(item.designId);
-    designImageMap.set(item.designId, imageUrls);
+  let imageMap = designImageMap.get(item.designId);
+  if (!imageMap?.length) {
+    let imageResponse = await getImages(item.designId);
+    designImageMap.set(item.designId, Object.entries(imageResponse));
+    imageMap = designImageMap.get(item.designId);
   }
-  if (imageUrls?.length) {
-    const imageFiles = await filesFromUrls(imageUrls);
-    combineImageAndGeneratePreviews(imageFiles);
+  if (imageMap?.length) {
+    designImages.value = imageMap.map(([fileName, preview]) => ({
+      fileName,
+      preview
+    }))
   }
 }
 
-async function getDesignImageUrl(designId: string) {
-  try {
-    return await fetchApi<string[]>(DesignImageApiUrl(designId), {
-      method: 'GET'
-    });
-  } catch (error) {
-    showSnackbar("Unexpected error while fetching design images. Please try again later", 'danger');
-  }
+function deleteItem(item: IDesign) {
+  showConfirm({
+    type: 'delete',
+    title: `Delete ${item.designNo}`,
+    message: 'Are you sure you want to delete this design?',
+    onPrimaryAction: async () => {
+      showSnackbar('Delete functionality yet to be implemented. Please contact Vishnu Vardhan (vishnu@elixapp.in)', 'danger');
+    }
+  })
 }
+
 
 </script>
