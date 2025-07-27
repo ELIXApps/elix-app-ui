@@ -1,17 +1,18 @@
 <template>
   <v-app>
     <Loader />
+    <ConfirmDialog />
     <router-view v-if="!isAuthLoading" />
   </v-app>
 </template>
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import { AccessTokenKey } from './services/constants';
+import { AccessTokenKey } from './services/common/constants';
 import ElixRoutes from './router/ElixRoutes';
-import { fetchApi } from './services/fetchHelper';
+import { fetchApi } from './services/common/fetchHelper';
 import { useLoader } from './composables/useLoader';
-import { ValidateTokenAPIUrl } from './services/apiUrls';
+import { ValidateTokenAPIUrl } from './services/common/apiUrls';
 import "./styles/app.scss";
 import { IApiResponse } from './models/api';
 

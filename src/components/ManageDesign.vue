@@ -46,8 +46,7 @@
             <v-row>
               <v-col cols="4">
                 <v-text-field v-model="diamondWeight" :error-messages="errors.diamondWeight"
-                  label="Diamond Weight in Cts" density="compact" variant="outlined" type="number"
-                  v-max-decimals="3" />
+                  label="Diamond Weight in Cts" density="compact" variant="outlined" type="number" v-max-decimals="3" />
               </v-col>
 
               <v-col cols="4">
@@ -74,7 +73,7 @@
                   <v-img :src="image.preview" cover />
                   <v-btn icon variant="flat" class="ma-2" size="x-small"
                     style="position: absolute; top: 0; right: 0; z-index: 1; background-color: rgba(0,0,0,0.6)"
-                    @click="removeImage(index)">
+                    @click="removeImage(image, index)">
                     <v-icon color="white">mdi-close</v-icon>
                   </v-btn>
                 </v-responsive>
@@ -89,7 +88,8 @@
               size="x-large">
               {{ values.designId ? 'Cancel' : 'Clear' }}
             </v-btn>
-            <v-btn density="compact" variant="tonal" color="success" size="x-large" type="submit">
+            <v-btn :loading="isSubmitting" density="compact" variant="tonal" color="success" size="x-large"
+              type="submit">
               Submit
             </v-btn>
           </v-col>
@@ -107,7 +107,10 @@
       :items-per-page-options="[5, 10, 25, 50]" class="elevation-1">
       <template v-slot:item.actions="{ item }">
         <v-btn density="compact" variant="text" icon @click="edit(item)">
-          <v-icon>mdi-pencil</v-icon>
+          <v-icon color="primary">mdi-pencil</v-icon>
+        </v-btn>
+        <v-btn density="compact" variant="text" icon @click="deleteItem(item)">
+          <v-icon color="danger">mdi-trash-can</v-icon>
         </v-btn>
       </template>
     </v-data-table>
@@ -119,17 +122,18 @@ import { computed, onMounted, ref } from 'vue'
 import { useForm } from 'vee-validate'
 import { goldColors, productOptions, purityOptions } from '@/models/product';
 import { useLoader } from '@/composables/useLoader';
-import { apiCreate, apiGetAll, apiUpdate } from '@/services/api';
+import { apiCreate, apiGetAll, apiUpdate } from '@/services/common/api';
 import { DataSourceObjects } from '@/models/api';
-import { fetchApi } from '@/services/fetchHelper';
 import { useSnackbar } from '@/composables/useSnackbar';
-import { DefaultErrorMsg } from '@/services/constants';
+import { DefaultErrorMsg } from '@/services/common/constants';
 import { IDesign } from '@/models/design';
 import { object, string } from 'yup';
-import { getImages, uploadImages } from '@/services/design';
+import { deleteImages, getImages, uploadImages } from '@/services/design';
+import { useConfirmDialog } from '@/composables/useConfirmDialog';
 
 const { showLoader, hideLoader } = useLoader();
 const { showSnackbar } = useSnackbar();
+const { showConfirm } = useConfirmDialog();
 
 // Search input
 const searchQuery = ref('');
@@ -222,7 +226,7 @@ const initialValues: IDesign = {
   specValue: null
 }
 
-const { handleSubmit, resetForm, errors, setValues, values, defineField } = useForm<IDesign>({
+const { handleSubmit, isSubmitting, resetForm, errors, setValues, values, defineField } = useForm<IDesign>({
   validationSchema,
   validateOnMount: false,
   initialValues: { ...initialValues }
@@ -238,13 +242,15 @@ const [diamondWeight] = defineField('diamondWeight');
 const [colorStoneWeight] = defineField('colorStoneWeight');
 const [productData] = defineField('productData');
 const [specValue] = defineField('specValue');
-const designImages = ref<{
+
+interface IDesignImageFile {
   file?: File,
-  preview?: string,
-  fileName: string
-}[]>([]);
+  preview: string,
+  fileName?: string
+}
+const designImages = ref<IDesignImageFile[]>([]);
 // const imagePreviews = ref<string[]>([]);
-const designImageMap = new Map<string, string[]>();
+const designImageMap = new Map<string, string[][]>();
 
 
 function loadAllDesigns() {
@@ -258,14 +264,13 @@ function loadAllDesigns() {
 async function onFileChange(event: Event) {
   const input = event.target as HTMLInputElement;
   const selectedFiles = Array.from(input?.files ?? []);
-  const processedFiles: { file: File; filePreview: string; fileName: string }[] = [];
+  const processedFiles: IDesignImageFile[] = [];
 
   for (const file of selectedFiles) {
-    const filePreview = await file.toDataUrl();
+    const preview = await file.toDataUrl();
     processedFiles.push({
       file,
-      filePreview,
-      fileName: file.name,
+      preview,
     });
   }
 
@@ -276,52 +281,77 @@ async function onFileChange(event: Event) {
 }
 
 
-function removeImage(index: number) {
-  // imageFiles.value.splice(index, 1);
-  // imagePreviews.value.splice(index, 1);
+function removeImage(image: IDesignImageFile, index: number) {
+  showConfirm({
+    type: 'delete',
+    message: 'Are you sure you want to remove this image?',
+    onPrimaryAction: async () => {
+      if (!image.file) {
+        deleteImages(values.designId, image.fileName);
+        designImageMap.delete(values.designId);
+      }
+      designImages.value.splice(index, 1);
+    }
+  })
 }
 
-const submit = handleSubmit(async values => {
-  showLoader();
-  var response = values.designId ? await apiUpdate(DataSourceObjects.design, values) : await apiCreate(DataSourceObjects.design, values);
-  if (!['created', 'updated'].includes(response.status)) {
-    showSnackbar(DefaultErrorMsg, 'danger');
-    hideLoader();
-    return;
-  }
+const submit = handleSubmit(values =>
+  showConfirm({
+    onPrimaryAction: async () => {
+      showLoader();
+      var response = values.designId ? await apiUpdate(DataSourceObjects.design, values) : await apiCreate(DataSourceObjects.design, values);
+      if (!['created', 'updated'].includes(response.status)) {
+        showSnackbar(DefaultErrorMsg, 'danger');
+        hideLoader();
+        return;
+      }
 
-  if (designImages.value?.length) {
-    var formData = new FormData();
-    designImages.value.forEach(x => {
-      formData.append(x.fileName, x.file);
-    });
-    uploadImages(values.designNo, formData);
-  }
-  showSnackbar("Design saved successfully");
-  resetDesignForm(values.designNo);
-  loadAllDesigns();
-  hideLoader();
-});
+      if (designImages.value?.length) {
+        var formData = new FormData();
+        designImages.value.filter(x => x.file?.size).forEach(x => {
+          formData.append(x.fileName, x.file);
+        });
+        await uploadImages(response.id || values.designId, formData);
+      }
+      showSnackbar("Design saved successfully");
+      resetDesignForm(response.id || values.designId);
+      loadAllDesigns();
+      hideLoader();
+    }
+  })
+);
 
-function resetDesignForm(designNo: string) {
+function resetDesignForm(designId: string) {
   resetForm({ values: { ...initialValues } });
   designImages.value = [];
-  designImageMap.delete(designNo);
+  designImageMap.delete(designId);
 }
 
 async function edit(item: IDesign) {
   setValues(item);
-  var imageUrls = designImageMap.get(item.designId);
-  if (!imageUrls?.length) {
-    imageUrls = await getImages(item.designNo);
-    designImageMap.set(item.designNo, imageUrls);
+  let imageMap = designImageMap.get(item.designId);
+  if (!imageMap?.length) {
+    let imageResponse = await getImages(item.designId);
+    designImageMap.set(item.designId, Object.entries(imageResponse));
+    imageMap = designImageMap.get(item.designId);
   }
-  if (imageUrls?.length) {
-    designImages.value = imageUrls.map(x => ({
-      preview: x,
-      fileName: x
+  if (imageMap?.length) {
+    designImages.value = imageMap.map(([fileName, preview]) => ({
+      fileName,
+      preview
     }))
   }
+}
+
+function deleteItem(item: IDesign) {
+  showConfirm({
+    type: 'delete',
+    title: `Delete ${item.designNo}`,
+    message: 'Are you sure you want to delete this design?',
+    onPrimaryAction: async () => {
+      showSnackbar('Delete functionality yet to be implemented. Please contact Vishnu Vardhan (vishnu@elixapp.in)', 'danger');
+    }
+  })
 }
 
 

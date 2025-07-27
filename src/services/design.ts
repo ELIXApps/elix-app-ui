@@ -1,18 +1,18 @@
 import { IApiResponse } from "@/models/api";
-import { fetchApi } from "./fetchHelper";
-import { DesignImageAPIUrl } from "./apiUrls";
+import { fetchApi } from "./common/fetchHelper";
+import { DesignImageAPIUrl } from "./common/apiUrls";
 
-async function getImages(designId: string): Promise<any> {
+async function getImages(designId: string): Promise<object> {
   try {
     var params = new URLSearchParams();
     params.append("designId", designId);
-    var response = await fetchApi<IApiResponse<any>>(
+    var response = await fetchApi<IApiResponse<object>>(
       DesignImageAPIUrl(params),
       {
         method: "GET",
       }
     );
-    return response;
+    return response.value;
   } catch (error) {
     console.error(`get Images error:`, error);
   }

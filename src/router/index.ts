@@ -5,7 +5,7 @@
  */
 
 // Composables
-import { AccessTokenKey } from "@/services/constants";
+import { AccessTokenKey } from "@/services/common/constants";
 import { createRouter, createWebHistory } from "vue-router/auto";
 import { routes } from "vue-router/auto-routes";
 import ElixRoutes from "./ElixRoutes";

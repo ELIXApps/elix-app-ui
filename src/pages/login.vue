@@ -27,9 +27,9 @@
 </template>
 
 <script setup lang="ts">
-import { AuthorizeAPIUrl } from '@/services/apiUrls';
-import { AccessTokenKey, DefaultErrorMsg } from '@/services/constants'
-import { fetchApi } from '@/services/fetchHelper';
+import { AuthorizeAPIUrl } from '@/services/common/apiUrls';
+import { AccessTokenKey, DefaultErrorMsg } from '@/services/common/constants'
+import { fetchApi } from '@/services/common/fetchHelper';
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
