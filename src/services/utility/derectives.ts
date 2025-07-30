@@ -50,15 +50,35 @@ const decimalFormat = {
   },
 };
 
-// Add more directives here in the same pattern
-// const otherDirective = {
-//   mounted(el: HTMLElement) {
-//     // Future custom directive logic
-//   }
-// };
+import { useImageViewer } from "@/composables/useImageViewer";
+
+// Image viewer directive
+const imageViewer = {
+  mounted(el: HTMLElement, binding: DirectiveBinding<string>) {
+    el.style.cursor = "pointer"; // Optional styling
+
+    el.addEventListener("click", () => {
+      const src = binding.value || el.getAttribute("src");
+      const title = el.getAttribute("alt") || "";
+      if (src) {
+        // Reuse viewer composable
+        const { showImageViewer } = useImageViewer();
+        showImageViewer({ src, title });
+      }
+    });
+
+    (el as any)._imageViewerCleanup = () => {
+      el.removeEventListener("click", () => {});
+    };
+  },
+  unmounted(el: HTMLElement) {
+    (el as any)._imageViewerCleanup?.();
+  },
+};
+
 
 // Register all
 export function registerDirectives(app: App) {
   app.directive("max-decimals", decimalFormat);
-  //   app.directive("other-directive", otherDirective); // example
+  app.directive("image-viewer", imageViewer);
 }

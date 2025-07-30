@@ -78,7 +78,7 @@
                 <template v-else-if="designImages?.length">
                   <v-responsive max-width="200" max-height="200" class="mr-2 position-relative"
                     v-for="(image, index) in designImages" :key="index">
-                    <v-img :src="image.preview" cover />
+                    <v-img v-image-viewer="image.preview" :src="image.preview" cover />
 
                     <!-- Remove button -->
                     <v-btn icon variant="flat" class="ma-2" size="x-small"

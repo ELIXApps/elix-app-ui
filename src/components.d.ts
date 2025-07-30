@@ -9,6 +9,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     ConfirmDialog: typeof import('./components/common/ConfirmDialog.vue')['default']
+    ImageViewer: typeof import('./components/common/ImageViewer.vue')['default']
     Loader: typeof import('./components/common/Loader.vue')['default']
     ManageCustomer: typeof import('./components/customer/ManageCustomer.vue')['default']
     ManageDesign: typeof import('./components/ManageDesign.vue')['default']

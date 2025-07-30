@@ -61,9 +61,7 @@ const defaultImage = "https://randomuser.me/api/portraits/lego/5.jpg"; // Defaul
 </script>
 <template>
 
-    <v-navigation-drawer>
-
-
+    <v-navigation-drawer> 
         <template v-slot:prepend>
             <v-list-item lines="two">
                 <p class="text-h4 font-weight-bold">E L I X</p>
@@ -71,7 +69,7 @@ const defaultImage = "https://randomuser.me/api/portraits/lego/5.jpg"; // Defaul
             <v-list-item lines="three" subtitle="Logged in" :title="user.fullname">
                 <template #prepend>
                     <v-avatar size="40">
-                        <v-img :src="user.profileImage" @error="user.profileImage = defaultImage"
+                        <v-img style="z-index: 9999;" v-image-viewer="user.profileImage" :src="user.profileImage" @error="user.profileImage = defaultImage"
                             :alt="user.fullname" />
                     </v-avatar>
                 </template>
