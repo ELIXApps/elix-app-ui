@@ -115,7 +115,7 @@
                             <template v-else-if="imagePreviews?.length">
                                 <v-responsive class="mr-2" v-for="(preview, index) in imagePreviews" :key="index"
                                     max-width="100" max-height="100">
-                                    <v-img :src="preview" cover />
+                                    <v-img v-image-viewer="preview" :src="preview" cover />
                                 </v-responsive>
                             </template>
                             <div v-else class="text-medium-emphasis mt-3">

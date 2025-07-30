@@ -2,6 +2,7 @@
   <v-app>
     <Loader />
     <ConfirmDialog />
+    <ImageViewer />
     <router-view v-if="!isAuthLoading" />
   </v-app>
 </template>
