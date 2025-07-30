@@ -74,9 +74,8 @@
                     <v-skeleton-loader max-height="100" type="image" />
                   </v-responsive>
                 </template>
-
                 <!-- Actual images (with per-image loader while rendering) -->
-                <template v-else>
+                <template v-else-if="designImages?.length">
                   <v-responsive max-width="200" max-height="200" class="mr-2 position-relative"
                     v-for="(image, index) in designImages" :key="index">
                     <v-img :src="image.preview" cover />
@@ -89,6 +88,9 @@
                     </v-btn>
                   </v-responsive>
                 </template>
+                <div v-else-if="values.designId" class="text-medium-emphasis">
+                  No images uploaded
+                </div>
               </v-col>
             </v-row>
           </v-col>
