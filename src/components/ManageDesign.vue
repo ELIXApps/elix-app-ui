@@ -68,15 +68,27 @@
             </v-row>
             <v-row>
               <v-col cols="8" class="d-flex">
-                <v-responsive max-width="200" max-height="200" class="mr-2" v-for="(image, index) in designImages"
-                  :key="index">
-                  <v-img :src="image.preview" cover />
-                  <v-btn icon variant="flat" class="ma-2" size="x-small"
-                    style="position: absolute; top: 0; right: 0; z-index: 1; background-color: rgba(0,0,0,0.6)"
-                    @click="removeImage(image, index)">
-                    <v-icon color="white">mdi-close</v-icon>
-                  </v-btn>
-                </v-responsive>
+                <!-- Show skeletons while images are being fetched -->
+                <template v-if="designImagesLoading">
+                  <v-responsive v-for="n in 3" :key="n" class="mr-2">
+                    <v-skeleton-loader max-height="100" type="image" />
+                  </v-responsive>
+                </template>
+
+                <!-- Actual images (with per-image loader while rendering) -->
+                <template v-else>
+                  <v-responsive max-width="200" max-height="200" class="mr-2 position-relative"
+                    v-for="(image, index) in designImages" :key="index">
+                    <v-img :src="image.preview" cover />
+
+                    <!-- Remove button -->
+                    <v-btn icon variant="flat" class="ma-2" size="x-small"
+                      style="position: absolute; top: 0; right: 0; z-index: 1; background-color: rgba(0,0,0,0.6)"
+                      @click="removeImage(image, index)">
+                      <v-icon color="white">mdi-close</v-icon>
+                    </v-btn>
+                  </v-responsive>
+                </template>
               </v-col>
             </v-row>
           </v-col>
@@ -252,6 +264,8 @@ const designImages = ref<IDesignImageFile[]>([]);
 // const imagePreviews = ref<string[]>([]);
 const designImageMap = new Map<string, string[][]>();
 
+const designImagesLoading = ref(false);
+
 
 function loadAllDesigns() {
   showLoader()
@@ -329,18 +343,20 @@ function resetDesignForm(designId: string) {
 
 async function edit(item: IDesign) {
   setValues(item);
-  let imageMap = designImageMap.get(item.designId);
-  if (!imageMap?.length) {
-    let imageResponse = await getImages(item.designId);
-    designImageMap.set(item.designId, Object.entries(imageResponse));
-    imageMap = designImageMap.get(item.designId);
+  await setDesignImages(item.designId);
+}
+
+async function setDesignImages(designId: string) {
+  designImagesLoading.value = true;
+  if (!designImageMap.has(designId)) {
+    const imageResponse = await getImages(designId);
+    if (imageResponse)
+      designImageMap.set(designId, Object.entries(imageResponse));
   }
-  if (imageMap?.length) {
-    designImages.value = imageMap.map(([fileName, preview]) => ({
-      fileName,
-      preview
-    }))
-  }
+
+  const imageMap = designImageMap.get(designId);
+  designImages.value = imageMap?.map(([fileName, preview]) => ({ fileName, preview })) ?? [];
+  designImagesLoading.value = false;
 }
 
 function deleteItem(item: IDesign) {
