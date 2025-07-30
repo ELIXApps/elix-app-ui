@@ -107,7 +107,12 @@
                     <v-col cols="3">
                         <div class="text-caption text-medium-emphasis pb-2">Design Images</div>
                         <div class="d-flex">
-                            <template v-if="imagePreviews?.length">
+                            <template v-if="designImagesLoading">
+                                <v-responsive v-for="n in 3" :key="n" class="mr-2">
+                                    <v-skeleton-loader max-height="100" type="image" />
+                                </v-responsive>
+                            </template>
+                            <template v-else-if="imagePreviews?.length">
                                 <v-responsive class="mr-2" v-for="(preview, index) in imagePreviews" :key="index"
                                     max-width="100" max-height="100">
                                     <v-img :src="preview" cover />
@@ -288,12 +293,13 @@ const [colorStoneWeight] = defineField('colorStoneWeight')
 const [specialRemarks] = defineField('specialRemarks')
 const [designId] = defineField('designId')
 
-const orderDateMenu = ref(false)
-const dueDateMenu = ref(false)
-
-const imagePreviews = ref<string[]>([])
+const orderDateMenu = ref(false);
+const dueDateMenu = ref(false);
+const imagePreviews = ref<string[]>([]);
+const designImagesLoading = ref(false);
 
 const designImageMap = new Map<string, string[]>();
+
 function onDesginNoSelect() {
     resetForm({
         values:
@@ -305,15 +311,18 @@ function onDesginNoSelect() {
     setImagePreviews();
 }
 
-function setImagePreviews() {
+async function setImagePreviews() {
+    designImagesLoading.value = true;
     let imageUrls = designImageMap.get(designId.value);
-    if (imageUrls?.length)
-        imagePreviews.value = imageUrls;
-    else
-        getImages(designId.value).then(resp => {
-            imagePreviews.value = Object.entries(resp).map(([fileName, preview]) => preview);
-            designImageMap.set(designId.value, [...imagePreviews.value]);
-        });
+
+    if (!imageUrls?.length) {
+        const resp = await getImages(designId.value);
+        imageUrls = resp ? Object.entries(resp).map(([_, preview]) => preview) : [];
+        designImageMap.set(designId.value, [...imageUrls]);
+    }
+
+    imagePreviews.value = imageUrls;
+    designImagesLoading.value = false;
 }
 
 const submitForm = handleSubmit(values =>
@@ -346,14 +355,14 @@ function edit(item: IOrder) {
 
 
 function deleteItem(item: IOrder) {
-  showConfirm({
-    type: 'delete',
-    title: `Delete ${item.orderId}`,
-    message: 'Are you sure you want to delete this order?',
-    onPrimaryAction: async () => {
-      showSnackbar('Delete functionality yet to be implemented. Please contact Vishnu Vardhan (vishnu@elixapp.in)', 'danger');
-    }
-  })
+    showConfirm({
+        type: 'delete',
+        title: `Delete ${item.orderId}`,
+        message: 'Are you sure you want to delete this order?',
+        onPrimaryAction: async () => {
+            showSnackbar('Delete functionality yet to be implemented. Please contact Vishnu Vardhan (vishnu@elixapp.in)', 'danger');
+        }
+    })
 }
 
 </script>

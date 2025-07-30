@@ -10,7 +10,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     ConfirmDialog: typeof import('./components/common/ConfirmDialog.vue')['default']
     Loader: typeof import('./components/common/Loader.vue')['default']
-    ManageCustomer: typeof import('./components/Customer/ManageCustomer.vue')['default']
+    ManageCustomer: typeof import('./components/customer/ManageCustomer.vue')['default']
     ManageDesign: typeof import('./components/ManageDesign.vue')['default']
     OrderBooking: typeof import('./components/orders/OrderBooking.vue')['default']
     PageWrapper: typeof import('./components/common/PageWrapper.vue')['default']
@@ -18,6 +18,6 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     SideBar: typeof import('./components/SideBar.vue')['default']
     Snackbar: typeof import('./components/common/Snackbar.vue')['default']
-    ViewCustomers: typeof import('./components/Customer/ViewCustomers.vue')['default']
+    ViewCustomers: typeof import('./components/customer/ViewCustomers.vue')['default']
   }
 }
