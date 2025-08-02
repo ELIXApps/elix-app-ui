@@ -12,7 +12,8 @@
               </v-col>
               <v-col cols="4">
                 <v-select v-model="productData" :items="productOptions" label="Product" density="compact"
-                  variant="outlined" item-title="product" return-object :error-messages="errors.productData" />
+                  variant="outlined" item-title="product" return-object :error-messages="errors.productData"
+                  @update:modelValue="onProductSelect" />
               </v-col>
               <v-col cols="4">
                 <template v-if="productData">
@@ -29,8 +30,8 @@
             </v-row>
             <v-row>
               <v-col cols="4">
-                <v-select v-model="goldCarat" :items="purityOptions" :error-messages="errors.goldCarat"
-                  label="Gold Carat" density="compact" variant="outlined" item-title="gold carat" />
+                <v-select v-model="goldCarat" :items="purityOptions" :error-messages="errors.goldCarat" label="Gold K"
+                  density="compact" variant="outlined" item-title="gold carat" />
               </v-col>
               <v-col cols="4">
                 <v-select v-model="goldColor" :error-messages="errors.goldColor" :items="goldColors" label="Gold Color"
@@ -39,20 +40,19 @@
 
               <v-col cols="4">
                 <v-text-field v-max-decimals="3" v-model="goldWeight" :error-messages="errors.goldWeight"
-                  label="Gold Weight in Gms" density="compact" variant="outlined" type="number" />
+                  label="Gold Wt gms" density="compact" variant="outlined" type="number" />
 
               </v-col>
             </v-row>
             <v-row>
               <v-col cols="4">
-                <v-text-field v-model="diamondWeight" :error-messages="errors.diamondWeight"
-                  label="Diamond Weight in Cts" density="compact" variant="outlined" type="number" v-max-decimals="3" />
+                <v-text-field v-model="diamondWeight" :error-messages="errors.diamondWeight" label="Dia Wt Cts"
+                  density="compact" variant="outlined" type="number" v-max-decimals="3" />
               </v-col>
 
               <v-col cols="4">
-                <v-text-field v-model="colorStoneWeight" :error-messages="errors.colorStoneWeight"
-                  label="Color Stone Weight in Cts" density="compact" variant="outlined" type="number"
-                  v-max-decimals="3" />
+                <v-text-field v-model="colorStoneWeight" :error-messages="errors.colorStoneWeight" label="CS Wt Cts"
+                  density="compact" variant="outlined" type="number" v-max-decimals="3" />
               </v-col>
             </v-row>
           </v-col>
@@ -117,14 +117,34 @@
       <v-text-field hide-details density="compact" width="25%" variant="outlined" v-model="searchQuery"
         label="Search by Design No., Product etc" prepend-inner-icon="mdi-magnify" clearable />
     </v-card-title>
-    <v-data-table density="compact" :headers="headers" :items="filteredItems" :items-per-page="5"
-      :items-per-page-options="[5, 10, 25, 50]" class="elevation-1">
+    <v-data-table v-model="selected" density="compact" :headers="headers" :items="filteredItems" item-value="designId"
+      show-select :items-per-page="5" :items-per-page-options="[5, 10, 25, 50]" class="elevation-1">
+      <template v-slot:header.actions>
+        <template v-if="selected.length > 1">
+          <v-menu>
+            <template #activator="{ props }">
+              <span>Actions</span>
+              <v-btn v-bind="props" color="primary" variant="text" icon>
+                <v-icon>mdi-dots-vertical</v-icon>
+              </v-btn>
+            </template>
+            <v-list>
+              <v-list-item @click="bulkDelete" append-icon="mdi-trash-can" title="Delete Selected">
+              </v-list-item>
+              <!-- You can add more bulk options here -->
+            </v-list>
+          </v-menu>
+        </template>
+        <template v-else>
+          Actions
+        </template>
+      </template>
       <template v-slot:item.actions="{ item }">
         <v-btn density="compact" variant="text" icon @click="edit(item)">
           <v-icon color="primary">mdi-pencil</v-icon>
         </v-btn>
-        <v-btn density="compact" variant="text" icon @click="deleteItem(item)">
-          <v-icon color="danger">mdi-trash-can</v-icon>
+        <v-btn icon variant="text" density="compact" @click="deleteItem(item)">
+          <v-icon color="error">mdi-trash-can</v-icon>
         </v-btn>
       </template>
     </v-data-table>
@@ -164,14 +184,15 @@ const headers = [
   { title: 'Specification', key: 'productData.specification', sortable: true },
   { title: 'Spec Value', key: 'specValue', sortable: true },
   { title: 'Unit', key: 'productData.unit', sortable: true },
-  { title: 'Gold Carat', key: 'goldCarat', sortable: true },
+  { title: 'Gold K', key: 'goldCarat', sortable: true },
   { title: 'Gold Color', key: 'goldColor', sortable: true },
-  { title: 'Gold Weight', key: 'goldWeight', sortable: true },
-  { title: 'Diamond Weight', key: 'diamondWeight', sortable: true },
-  { title: 'Color Stone Weight', key: 'colorStoneWeight', sortable: true },
+  { title: 'Gold Wt gms', key: 'goldWeight', sortable: true },
+  { title: 'Dia Wt Cts', key: 'diamondWeight', sortable: true },
+  { title: 'CS Wt Cts', key: 'colorStoneWeight', sortable: true },
   { title: 'Actions', key: 'actions', sortable: false },
 ]
 
+const selected = ref<IDesign[]>([]);
 const allDesigns = ref<IDesign[]>([]);
 
 const filteredItems = computed(() => {
@@ -199,30 +220,30 @@ const validationSchema = object({
     .trim()
     .required('Required'),
   goldCarat: string()
-    .required('Gold Carat is required')
-    .min(1, 'Gold Carat is required'),
+    .required('Gold K is required')
+    .min(1, 'Gold K is required'),
   goldColor: string()
     .required('Gold Color is required')
     .min(1, 'Gold Color is required'),
   goldWeight: string()
-    .required('Gold Weight is required')
+    .required('Gold Wt is required')
     .test(
       'is-valid-number',
-      'Gold Weight is required',
+      'Gold Wt is required',
       value => value != null && value.toString().trim() !== '' && !isNaN(parseFloat(value))
     ),
   diamondWeight: string()
-    .required('Diamond Weight is required')
+    .required('Dia Wt is required')
     .test(
       'is-valid-number',
-      'Diamond Weight is required',
+      'Dia Wt is required',
       value => value != null && value.toString().trim() !== '' && !isNaN(parseFloat(value))
     ),
   colorStoneWeight: string()
-    .required('Color Stone Weight is required')
+    .required('CS Wt is required')
     .test(
       'is-valid-number',
-      'Color Stone Weight is required',
+      'CS Wt is required',
       value => value != null && value.toString().trim() !== '' && !isNaN(parseFloat(value))
     ),
 });
@@ -240,7 +261,7 @@ const initialValues: IDesign = {
   specValue: null
 }
 
-const { handleSubmit, isSubmitting, resetForm, errors, setValues, values, defineField } = useForm<IDesign>({
+const { handleSubmit, isSubmitting, resetForm, errors, setValues, values, defineField, setFieldValue } = useForm<IDesign>({
   validationSchema,
   validateOnMount: false,
   initialValues: { ...initialValues }
@@ -372,5 +393,19 @@ function deleteItem(item: IDesign) {
   })
 }
 
+function bulkDelete() {
+  showConfirm({
+    type: 'delete',
+    title: `Delete ${selected.value.length} designs`,
+    message: `Are you sure you want to delete these ${selected.value.length} designs ? This action cannot be reversed`,
+    onPrimaryAction: async () => {
+      showSnackbar('Delete functionality yet to be implemented. Please contact Vishnu Vardhan (vishnu@elixapp.in)', 'danger');
+    }
+  })
+}
+
+const onProductSelect = () => {
+  if (values.specValue) setFieldValue('specValue', null);
+}
 
 </script>

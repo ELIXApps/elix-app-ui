@@ -78,7 +78,6 @@ const defaultImage = "https://randomuser.me/api/portraits/lego/5.jpg"; // Defaul
         </template>
 
         <v-list nav dense>
-            <!-- <v-list-item>ELIX</v-list-item> -->
             <template v-for="menu in sideMenu" :key="menu.title">
                 <v-list-group v-if="menu.subMenus" :prepend-icon="menu.icon">
                     <template #activator="{ props }">

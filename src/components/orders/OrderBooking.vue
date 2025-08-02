@@ -70,7 +70,7 @@
 
                             <v-col cols="3">
                                 <v-select v-model="goldCarat" :error-messages="errors.goldCarat" :items="purityOptions"
-                                    label="Gold Carat" density="compact" variant="outlined" />
+                                    label="Gold K" density="compact" variant="outlined" />
                             </v-col>
                         </v-row>
 
@@ -82,18 +82,18 @@
                             </v-col>
                             <v-col cols="3">
                                 <v-text-field v-max-decimals="3" v-model="goldWeight"
-                                    :error-messages="errors.goldWeight" label="Gold Weight in Gms" density="compact"
+                                    :error-messages="errors.goldWeight" label="Gold Wt gms" density="compact"
                                     variant="outlined" type="number" />
                             </v-col>
                             <v-col cols="3">
                                 <v-text-field v-max-decimals="3" v-model="diamondWeight"
-                                    :error-messages="errors.diamondWeight" label="Diamond Weight in Cts"
-                                    density="compact" variant="outlined" type="number" />
+                                    :error-messages="errors.diamondWeight" label="Dia Wt Cts" density="compact"
+                                    variant="outlined" type="number" />
                             </v-col>
                             <v-col cols="3">
                                 <v-text-field v-max-decimals="3" v-model="colorStoneWeight"
-                                    :error-messages="errors.colorStoneWeight" label="Color Stone Weight in Cts"
-                                    density="compact" variant="outlined" type="number" />
+                                    :error-messages="errors.colorStoneWeight" label="CS Wt Cts" density="compact"
+                                    variant="outlined" type="number" />
                             </v-col>
                         </v-row>
 
@@ -145,8 +145,29 @@
             <v-text-field hide-details density="compact" width="25%" variant="outlined" v-model="searchQuery"
                 label="Search by Order ID, Design No. etc" prepend-inner-icon="mdi-magnify" clearable />
         </v-card-title>
-        <v-data-table density="compact" :headers="tableHeaders" :items="filteredItems" :items-per-page="5"
-            :items-per-page-options="[5, 10, 25, 50]" class="elevation-1">
+        <v-data-table v-model="selected" density="compact" :headers="tableHeaders" :items="filteredItems"
+            item-value="orderId" :items-per-page="5" show-select :items-per-page-options="[5, 10, 25, 50]"
+            class="elevation-1">
+            <template v-slot:header.actions>
+                <template v-if="selected.length > 1">
+                    <v-menu>
+                        <template #activator="{ props }">
+                            <span>Actions</span>
+                            <v-btn v-bind="props" color="primary" variant="text" icon>
+                                <v-icon>mdi-dots-vertical</v-icon>
+                            </v-btn>
+                        </template>
+                        <v-list>
+                            <v-list-item @click="bulkDelete" append-icon="mdi-trash-can" title="Delete Selected">
+                            </v-list-item>
+                            <!-- You can add more bulk options here -->
+                        </v-list>
+                    </v-menu>
+                </template>
+                <template v-else>
+                    Actions
+                </template>
+            </template>
             <template v-slot:item.actions="{ item }">
                 <v-btn class="me-1" density="compact" variant="text" icon @click="edit(item)">
                     <v-icon color="primary">mdi-pencil</v-icon>
@@ -240,11 +261,11 @@ const schema = object({
     orderDate: date().required('Order Date is required'),
     dueDate: date().required('Due Date is required'),
     designNo: string().required('Design No. is required'),
-    goldCarat: string().required('Gold Carat is required'),
+    goldCarat: string().required('Gold K is required'),
     goldColor: string().required('Gold Color is required'),
-    goldWeight: string().required('Gold Weight is required'),
-    diamondWeight: string().required('Diamond Weight is required'),
-    colorStoneWeight: string().required('Color Stone Weight is required'),
+    goldWeight: string().required('Gold Wt is required'),
+    diamondWeight: string().required('Dia Wt is required'),
+    colorStoneWeight: string().required('CS Wt is required'),
     specialRemarks: string().nullable(),
     specValue: string().required()
 })
@@ -297,17 +318,19 @@ const orderDateMenu = ref(false);
 const dueDateMenu = ref(false);
 const imagePreviews = ref<string[]>([]);
 const designImagesLoading = ref(false);
-
+const selected = ref<IOrder[]>([]);
 const designImageMap = new Map<string, string[]>();
 
 function onDesginNoSelect() {
+    const selectedDesign = allDesigns.value.find(d => d.designNo == values.designNo);
     resetForm({
-        values:
-        {
+        values: {
             ...values,
-            ...allDesigns.value.find(d => d.designNo == values.designNo)
-        },
-    })
+            ...selectedDesign,
+        }
+    }, {
+        force: true
+    });
     setImagePreviews();
 }
 
@@ -364,5 +387,18 @@ function deleteItem(item: IOrder) {
         }
     })
 }
+
+
+function bulkDelete() {
+  showConfirm({
+    type: 'delete',
+    title: `Delete ${selected.value.length} orders`,
+    message: `Are you sure you want to delete these ${selected.value.length} orders ? This action cannot be reversed`,
+    onPrimaryAction: async () => {
+      showSnackbar('Delete functionality yet to be implemented. Please contact Vishnu Vardhan (vishnu@elixapp.in)', 'danger');
+    }
+  })
+}
+
 
 </script>
